@@ -1,5 +1,15 @@
 # GitHub → Vercel deployment
 
+## Live deployment
+
+Production: **https://missionpulse.vercel.app**
+
+Deployed with user approval on 14 November 2026. Vercel reported Ready, and unauthenticated HTTPS checks returned 200 for the overview and six module routes, and 404 for an unknown route. GitHub repository visibility was not changed. No API keys were added. The dashboard source was not modified.
+
+Vercel project `missionpulse` is connected to `suhama101/nasachallenge`, with production branch `main`, repository-root Next.js configuration, automatic Git deployments enabled, and Node.js 24.x selected to match local verification. The original source commit is `2ab9b5d4d6f2585009eedcc502eb34f5a296aa97`.
+
+The instructions below describe initial setup and can be used to reproduce or inspect the configuration; the initial push and deployment have already been approved and completed.
+
 The Next.js app lives in this directory. Push its contents as the repository root to `https://github.com/suhama101/nasachallenge`. The repository can remain private while the deployed website is public. No Supabase or Groq keys are required.
 
 ## Prepared and verified
@@ -11,7 +21,7 @@ The Next.js app lives in this directory. Push its contents as the repository roo
 - `.gitignore` excludes dependency/build directories, `.vercel`, all `.env*` files except the empty `.env.example`, logs, signing keys and common credential directories.
 - Application source has no environment-variable reads or Supabase/Groq requests.
 - The remote repository was reachable but returned no branch references at preparation time.
-- No deployment or public URL has been created or verified during preparation.
+- No deployment was created during initial preparation; the approved deployment is recorded above.
 
 ## Manual account actions and approval boundary
 
@@ -60,7 +70,7 @@ Do not push until you approve publishing this source to the selected repository.
 
 Keep the GitHub repository connected in Vercel Project Settings → Git. The Vercel GitHub integration deploys branch pushes by default; pushes to the production branch update the production domain, while other branches receive preview deployments. Confirm `main` is the production branch. No GitHub Actions workflow or deployment token is needed for this integration.
 
-After connection, confirm automatic deployment using your next real approved change: push the commit, then verify Vercel shows that commit SHA and reaches Ready. This has not been tested during preparation because pushing can trigger deployment.
+After connection, confirm automatic deployment by pushing an approved change, then verify Vercel shows that commit SHA and reaches Ready. Automatic deployments were enabled after the first CLI deployment; this documentation update is used to verify the Git-triggered deployment.
 
 References: [Vercel GitHub integration](https://vercel.com/docs/git/vercel-for-github), [Next.js on Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs).
 

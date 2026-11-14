@@ -1,5 +1,7 @@
 # MissionPulse
 
+Live research demo: **https://missionpulse.vercel.app**. Deployed to Vercel with the owner's approval on 14 November 2026; the production domain was verified accessible without authentication.
+
 An astronaut health monitoring and decision-support frontend prepared for NASA Space Apps Challenge 2026. Phase 1 explores clear presentation of health records, trends and mission context. This is an independent research demonstration, not a NASA-endorsed product or certified medical diagnostic system.
 
 All crew identities and measurements are fictional. No clinical assessment, diagnosis or treatment recommendation is generated. The overview is a fixed synthetic snapshot dated 14 November 2026, not live telemetry. Example observations are authored copy, not a medical algorithm.
@@ -57,7 +59,7 @@ Daily recording, persisted health history, reviewed educational sources, explain
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for the prepared GitHub remote, exact Vercel import settings, manual account actions, approval boundary and verification procedure.
 
-Import this directory into Vercel as a **Next.js** project. If importing its parent workspace, set **Root Directory** to `missionpulse`. Use the default `npm run build` build command and Next.js output settings; no custom `vercel.json` or export configuration is needed. Use a supported Node.js runtime (24 recommended). Deployment has not been performed in this phase.
+The existing Vercel project uses **Next.js**, repository root (`.`), default build/output settings and Node.js 24.x. Its GitHub connection uses `suhama101/nasachallenge`, production branch `main`, with automatic Git deployments enabled. No custom `vercel.json` or export configuration is needed. For a future import of a larger parent repository, set **Root Directory** to `missionpulse` only if the app is nested there.
 
 The application needs no writable runtime filesystem. The mock dataset is compiled into the frontend and contains no private information. `.env.example` reserves server-only variables for future integrations; copying it is optional. Keep secret keys out of client modules and never prefix secret keys with `NEXT_PUBLIC_`. Introduce future data access and AI requests through server-only modules/route handlers with authentication and validation. Do not replace mock data with sensitive records inside client bundles.
 
@@ -76,4 +78,4 @@ Completed verification on 14 November 2026:
 | `npm.cmd audit --omit=dev` | Zero production dependency vulnerabilities |
 | `npm.cmd audit` / `npm.cmd audit fix` | Seven moderate development-only advisories remain in the TypeScript ESLint dependency chain (transitive minimatch); compatible automatic fix did not resolve them |
 
-No browser automation was available in the session. Responsive styling, chart interaction and focus behavior still need manual browser review. No deployment was performed. The temporary production server used for route checks was stopped.
+No browser automation was available in the session. Responsive styling, chart interaction and focus behavior still need manual browser review. Initial Phase 1 verification was local; subsequent approved Vercel deployment reached Ready, and unauthenticated HTTPS checks passed for all seven public routes and the 404 route. The temporary local production server used for the original route checks was stopped.
