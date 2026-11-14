@@ -9,7 +9,9 @@ export function generateStaticParams() {
       (m) =>
         m.slug !== "daily-health-check" &&
         m.slug !== "health-history" &&
-        m.slug !== "health-insights",
+        m.slug !== "health-insights" &&
+        m.slug !== "space-health-knowledge" &&
+        m.slug !== "ai-health-assistant",
     )
     .map((m) => ({ section: m.slug }));
 }

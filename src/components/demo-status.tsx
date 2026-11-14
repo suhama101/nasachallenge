@@ -13,8 +13,9 @@ export function DemoBanner() {
       <p>
         <strong>Local demo · fictional crew member Alex Morgan.</strong>{" "}
         Synthetic seed records and your user-entered demo readings stay in this
-        browser’s IndexedDB. Nothing is measured automatically or uploaded to
-        Supabase. Use fictional values only. Mission-local dates use UTC.
+        browser’s IndexedDB. Assistant sharing requires separate explicit
+        consent. Nothing is measured automatically or uploaded to Supabase. Use
+        fictional values only. Mission-local dates use UTC.
       </p>
     </aside>
   );

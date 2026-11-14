@@ -1,5 +1,7 @@
 # GitHub → Vercel deployment
 
+**Phase 4 release approval:** The owner approved committing, pushing and deploying the verified knowledge library and assistant to the existing `main` branch and Vercel project on 14 November 2026. Keep https://missionpulse.vercel.app unchanged. Use the existing Git connection; do not repeat the historical import instructions below. Live Groq remains unavailable without complete private configuration; this release does not change production environment variables. Before reporting success, match the production deployment's Git SHA to the pushed commit and test knowledge search, topic links, consented demo questions, chat persistence and existing monitoring workflows on the public URL.
+
 **Phase 3 release approval:** The owner explicitly approved committing and deploying the verified Health Insights release to the existing `main` branch and `missionpulse` Vercel project on 14 November 2026. Production URL remains https://missionpulse.vercel.app. Verify the exact new commit and Ready state in Vercel; the deployment records below describe earlier setup.
 
 **Phase 2 release:** The owner explicitly approved committing Phase 2 to `main` and deploying it through the existing GitHub/Vercel connection on 14 November 2026. The original deployment record below documents initial hosting setup. Use Vercel's current production deployment and commit SHA to confirm the latest release. See README.md for the check-in/history workflow and tests.

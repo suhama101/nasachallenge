@@ -2,7 +2,7 @@
 
 An astronaut health-monitoring research prototype for NASA Space Apps Challenge 2026. Independent project; not NASA-endorsed or a certified medical diagnostic system. No clinical diagnosis, risk scoring or treatment recommendations are generated.
 
-**Phase 3 implements explainable health monitoring and isolated scenarios.** Production URL: https://missionpulse.vercel.app. The owner explicitly approved publishing this release to the existing GitHub/Vercel project on 14 November 2026. Verify the deployed commit and Ready status in Vercel when reviewing a release.
+**Phase 4 adds a curated research library and grounded assistant.** Production URL: https://missionpulse.vercel.app. The owner approved publishing Phase 4 to the existing GitHub/Vercel project on 14 November 2026. Verify the exact deployed commit and Ready status before reporting a release as live. Live Groq remains disabled without complete private configuration.
 
 ## Run locally
 
@@ -29,7 +29,7 @@ Mission-local calendar is explicitly **UTC** for this fictional mission; it is i
 
 ## Phase 3: Health Insights and explainable monitoring
 
-Open http://localhost:3000/health-insights. The module analyzes the selected local demo records; the dashboard observation panel shares the **same computed report**. Existing entry, storage, history, charts and reset behavior are preserved. No Groq, authentication, medical-device telemetry or external analysis service was added.
+Open http://localhost:3000/health-insights. The module analyzes the selected local demo records; the dashboard observation panel shares the **same computed report**. Existing entry, storage, history, charts and reset behavior are preserved. This deterministic engine remains independent of Groq, authentication and external analysis services.
 
 - Per-indicator rolling medians, baseline sample counts and reference periods; the current mission date is excluded from its baseline. Default minimum: 5 earlier distinct mission dates; configurable to 3, 5, 7 or 10 in the interface.
 - 7-/30-day means with actual sample counts, population variability, calendar-day regression slopes, absolute/relative differences, consecutive changes, missing data and timestamp freshness.
@@ -97,7 +97,27 @@ Stack: Next.js App Router, strict TypeScript, React, Tailwind v4, shadcn/ui Butt
 
 Phase 3 code is under `src/lib/insights/` (statistics, analysis, typed configuration, verified references and scenario datasets), `src/components/insights-provider.tsx` (shared selection/report), and `health-insights.tsx`, `insights-analytics.tsx`, `insight-card.tsx` (interface and dashboard summary). Deterministic fixtures and tests are in `tests/insights.fixtures.ts`, `tests/insights.test.ts` and `tests/e2e/insights.spec.ts`.
 
-## Supabase schema and future setup
+## Phase 4: knowledge and assistant
+
+Open `/space-health-knowledge` to search 17 NASA/CSA entries, filter topics and open individual source-linked pages. Open `/ai-health-assistant` for education, deterministic yesterday/7-/30-date measurement queries, missing-reading counts and Phase 3 baseline explanations. Opt into measurements separately for each message. Select saved demo or scenarios A/B/C to keep conversations separate. Chat persists locally across refresh; clearing requires confirmation.
+
+The no-key demo is fully useful and clearly labeled **local deterministic / curated**, not live AI. Optional Groq selects approved educational statements only. It cannot invent visible prose, citations, personal measurements or clinical advice. Exact values and observations remain deterministic. No prior conversation is sent to the provider. See [AI-SAFETY.md](AI-SAFETY.md) for architecture, data flow, evidence, abuse controls, tests and limitations.
+
+Code: `src/lib/knowledge/` (typed content and keyword retrieval), `src/lib/assistant/` (consent-scoped compact context, deterministic answers, safety, strict schemas, chat IndexedDB, HTTP validation, provider/budget), `src/app/api/assistant/route.ts` (Node route), and the knowledge/assistant components and routes. Provider adapters are injectable in tests; no real Groq request is made by test suites.
+
+### Optional manual live configuration
+
+No setup is required for fallback. To test live selection later:
+
+1. Copy `.env.example` to ignored `.env.local`. In Groq's own console, create a server key and choose a **currently supported model with JSON-object output**; set `GROQ_API_KEY` and `GROQ_MODEL`. Never paste secrets in chat, source, screenshots or `NEXT_PUBLIC_` variables. Consult [Groq quickstart](https://console.groq.com/docs/quickstart) and [API reference](https://console.groq.com/docs/api-reference).
+2. Provision an optional Upstash Redis REST database for a durable public request budget; put its HTTPS URL and private REST token in `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`. This is required only for live paid-provider calls, not ordinary app use. See [Upstash REST documentation](https://upstash.com/docs/redis/features/restapi). Only atomic counter keys are stored, never prompts or health data.
+3. Set `GROQ_LIVE_ENABLED=true`. Defaults cap shared calls at 6/minute and 100/UTC day; optional `GROQ_REQUESTS_PER_MINUTE` / `GROQ_REQUESTS_PER_DAY` lower or adjust these within hard maxima of 20 and 500. Set account spending limits separately.
+4. Restart local Next.js and enable the visible live checkbox. Verify a source-linked response labeled **Groq-assisted selection**. Malformed output, configuration/model errors, timeout or budget failure returns an honest local fallback. No real provider integration was verified during the no-key implementation.
+5. After explicit publication approval, configure these same private variables in the **existing** Vercel project's settings and redeploy using standard Next.js defaults. Do not create another project. Leaving them unset deploys a working fallback. Publishing Phase 4 and changing production environment variables require separate explicit approval.
+
+Health records and chat never upload to Supabase. Public demo datasets and client-provided dataset enums are not authentication. No source page is fetched at chat runtime. Known limits include keyword-based retrieval/safety, independent messages, browser-local unencrypted storage, no configured emergency protocol and no unrestricted model prose.
+
+## Supabase schema and future setup (deferred)
 
 **Not needed for demo mode. No credentials were configured or migrations applied.**
 
@@ -116,7 +136,7 @@ When you're ready for the **next authentication phase**:
 3. Implement authentication and owned-profile onboarding in a later phase. The existing server-only factory `createAuthenticatedHealthRepository(accessToken)` verifies a user access token with `auth.getUser`, resolves the user's profile, and uses their JWT with the publishable key so RLS remains effective. No profile/auth UI, server route or automatic storage-mode toggle has been added here.
 4. After the migration is applied, regenerate database types for your actual schema and run the ownership tests before connecting any real accounts. Do not import local demo records into authenticated storage.
 
-Environment variables are accessed lazily, only inside the server-only factory; missing variables cannot break build or local demo. The demo provider always chooses IndexedDB even if credentials happen to exist. `GROQ_API_KEY` and privileged Supabase keys are not requested. Secrets must never be placed in client modules or prefixed `NEXT_PUBLIC_`.
+Environment variables are accessed only in server-only factories; missing variables cannot break build or local demo. The demo provider always chooses IndexedDB even if credentials exist. Optional Groq setup is described below; privileged Supabase keys are never needed. Secrets must never be placed in client modules or prefixed `NEXT_PUBLIC_`.
 
 ## Tests and development commands
 
@@ -128,10 +148,10 @@ npm.cmd test
 npm.cmd run test:e2e
 ```
 
-- `npm test`: 87 tests covering the existing check-in/repository workflow plus baseline math/minimums/current exclusion, zero baselines, missing readings, chronology, freshness, outliers, malformed timestamps and measurements, sustained changes, categorical mood, co-occurrence, profile/source isolation, scenario isolation, historical look-ahead prevention and urgent overrides. Fixtures are deterministic; no medical accuracy is claimed.
+- `npm test`: 125 tests covering check-ins, repositories, Phase 3 analysis and the Phase 4 assistant, including retrieval/citations, exact values, consent, isolated context, safety, mocked Groq/atomic budget calls, HTTP validation, timeout/fallback behavior and persistent/corrupt storage. Fixtures are deterministic; no clinical accuracy is claimed.
 - `npm run test:e2e`: the complete form → save → history → reload → filters → dashboard → reset path at desktop (1440px), tablet (834px) and mobile (390px), including plotted values, duplicate submit events, no horizontal overflow and runtime-error checks. Uses installed **Microsoft Edge** via Playwright (`channel: "msedge"`) and isolated browser contexts. Reuses localhost:3000 if running, or starts a server there. If Edge is unavailable, install it or change the channel to a locally installed supported browser. Screenshots and failure traces stay in ignored `test-results/`.
 - `npm run test:watch`: interactive unit-test development.
-- The browser suite contains **9 tests** (3 workflows × 3 viewports): the original Phase 2 workflow, scenario/evidence/analytics/dashboard consistency with unchanged saved history, and persistent urgent-report handling. Run it locally for Phase 3; the optional `PLAYWRIGHT_BASE_URL` override should target a deployed Phase 3 version only after publication is approved.
+- The browser suite covers Phase 2–3 workflows plus Phase 4 library search, topic navigation, consent, persistent conversations, scenario isolation, live-request payloads and urgent fallback across desktop, tablet and mobile. Provider responses are mocked; no paid API calls are required. Use `PLAYWRIGHT_BASE_URL` only for an explicitly approved review target.
 - `npm start`: serve a completed production build.
 
 To run **optional real PostgreSQL/RLS tests**, use Docker Desktop and the Supabase CLI against a new disposable local stack:
@@ -149,13 +169,13 @@ Fresh local startup applies the migration. For an already initialized **disposab
 
 Standard Next.js deployment: repository-root app (`.`), Node.js 24.x, default `npm run build` and framework output. `.gitignore` excludes local databases/config state, dependencies, builds, environments, Vercel state and test artifacts; `.env.example` contains empty placeholders only. The application does not rely on writable server files and builds without any Supabase/Groq configuration.
 
-GitHub `suhama101/nasachallenge` is connected to the existing Vercel project `missionpulse`; pushes to `main` trigger production deployments. Publication requires explicit owner approval; approval for this Phase 3 release was given on 14 November 2026. See `DEPLOYMENT.md` for hosting configuration.
+GitHub `suhama101/nasachallenge` is connected to the existing Vercel project `missionpulse`; pushes to `main` trigger production deployments. Publication requires explicit owner approval; approval for Phase 4 was given on 14 November 2026. See `DEPLOYMENT.md` for hosting configuration. This approval does not enable or configure live Groq.
 
 ## Known limits
 
 - Browser storage is local to this site/origin and browser profile, not encrypted medical-record infrastructure, synchronized storage or a backup. Clearing site data removes it. Storage denial/quota errors are surfaced rather than reporting a false save. No personal medical information should be entered.
 - The fixed fictional mission-day counter is scenario context; the active check-in date and data timestamps are live and labeled UTC.
-- The knowledge library, assistant and crew-profile routes remain labeled future modules. No chatbot/Groq, login, real-account storage switching, edit/delete individual record flow, clinical diagnosis engine or treatment recommendation is implemented.
+- Crew Profile remains a future module. There is no login, real-account storage switching, individual record editing/deletion, diagnosis or treatment generation. The assistant is bounded to independent supported questions and curated responses; it does not infer conversational context.
 - Baselines and prototype thresholds are descriptive; they do not establish normal health, causation, fitness, radiation exposure or clinical risk. Freshness is a software rule. Small/synthetic samples and manually entered data limit reliability. Urgent symptom resolution and clinician-approved escalation protocols remain unimplemented.
 - The Supabase adapter/schema are prepared, not connected to a deployed database or authentication flow. Real RLS tests require the optional local stack above.
 - Seven pre-existing moderate development dependency advisories in the ESLint chain remain from Phase 1. The earlier compatible automatic fix did not resolve them; the Phase 2 production dependency audit (`npm audit --omit=dev`) reported zero vulnerabilities.

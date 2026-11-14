@@ -183,8 +183,9 @@ export default function Overview() {
           <p>
             <strong>Designed for exploration.</strong> Crew details are
             fictional. Synthetic seeds and your user-entered demo readings are
-            kept in this browser only. Clearing browser site data deletes them.
-            No clinical assessment or live telemetry is provided.
+            stored in this browser. Assistant sharing requires separate explicit
+            consent. Clearing browser site data deletes local records. No
+            clinical assessment or live telemetry is provided.
           </p>
           <CalendarDays size={17} />
         </div>
