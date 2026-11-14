@@ -2,6 +2,7 @@ import { Heart, Moon, Droplets, Thermometer } from "lucide-react";
 import type { HealthCheckIn } from "@/lib/health/validation";
 import { displayTimestamp } from "@/lib/health/dates";
 import { sourceLabel } from "@/lib/health/selectors";
+import { spo2NeedsReview } from "@/lib/health/integrity";
 const metrics = [
   {
     key: "heartRate",
@@ -56,9 +57,11 @@ export function LatestMeasurements({
             <span>{unit}</span>
           </p>
           <p className="metric-note">
-            {record?.[key] == null
-              ? "Not recorded"
-              : "User-entered or synthetic; not device telemetry"}
+            {key === "spo2" && spo2NeedsReview(record?.spo2)
+              ? `Needs review · original ${record?.spo2}% kept; excluded from calculations`
+              : record?.[key] == null
+                ? "Not recorded"
+                : "User-entered or synthetic; not device telemetry"}
           </p>
           <div className="metric-source">
             {record ? (

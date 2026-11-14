@@ -15,14 +15,21 @@ import {
 } from "@/lib/health/selectors";
 import { displayDate, displayTimestamp } from "@/lib/health/dates";
 import { isMissionDate, type HealthCheckIn } from "@/lib/health/validation";
+import {
+  spo2Label,
+  spo2NeedsReview,
+  spo2ReviewMessage,
+  recordCoverage,
+} from "@/lib/health/integrity";
 
 export function CheckInDetails({ record }: { record: HealthCheckIn }) {
+  const coverage = recordCoverage(record);
   const values = [
     ["Resting heart rate", measurement(record.heartRate, "bpm")],
     ["Systolic pressure", measurement(record.systolic, "mmHg")],
     ["Diastolic pressure", measurement(record.diastolic, "mmHg")],
     ["Body temperature", measurement(record.temperature, "°C")],
-    ["SpO₂", measurement(record.spo2, "%")],
+    ["SpO₂", spo2Label(record.spo2)],
     ["Blood glucose", measurement(record.glucose, "mg/dL")],
     ["Sleep", measurement(record.sleep, "hours")],
     ["Mood", record.mood ?? "Not recorded"],
@@ -41,11 +48,19 @@ export function CheckInDetails({ record }: { record: HealthCheckIn }) {
           <small>
             Mission date (UTC) · Recorded {displayTimestamp(record.recordedAt)}
           </small>
+          <small className="record-coverage">
+            {coverage.recorded} measurements recorded · {coverage.missing} not
+            recorded
+            {coverage.review ? ` · ${coverage.review} needs review` : ""}
+          </small>
         </span>
         <span className="source-tag">{sourceLabel(record.source)}</span>
         <span className="detail-hint">View details</span>
       </summary>
       <div className="checkin-detail-body">
+        {spo2NeedsReview(record.spo2) && (
+          <p className="data-review-note">{spo2ReviewMessage}</p>
+        )}
         <dl className="record-values">
           {values.map(([label, value]) => (
             <div key={label}>
@@ -108,6 +123,28 @@ export function HealthHistory() {
   const latest = latestRecord(selected);
   return (
     <>
+      <section className="panel history-guide">
+        <h2>Your saved check-ins</h2>
+        <p>
+          Each entry belongs to the mission date you chose. “Recorded” is when
+          you saved it. Open an entry to see every reading; “Not recorded” means
+          no value was entered. Newest submissions appear first.
+        </p>
+        {selected.length > 0 && (
+          <a href="#checkin-log">Browse individual check-ins ↓</a>
+        )}
+        <p>
+          Use the dates below to find earlier entries, or clear filters to see
+          all {records.length} saved check-ins. Charts follow your date filter;
+          open their data tables for exact values.
+        </p>
+      </section>
+      {records.some((row) => spo2NeedsReview(row.spo2)) && (
+        <aside className="panel data-review-banner" role="note">
+          <h2>Some saved oxygen readings need review</h2>
+          <p>{spo2ReviewMessage}</p>
+        </aside>
+      )}
       <section
         className="panel history-filters"
         aria-label="Filter history by mission date"
@@ -199,7 +236,7 @@ export function HealthHistory() {
               </p>
             </div>
           </div>
-          <div className="history-list">
+          <div className="history-list" id="checkin-log">
             {selected.map((record) => (
               <CheckInDetails record={record} key={record.id} />
             ))}

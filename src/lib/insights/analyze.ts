@@ -2,6 +2,12 @@ import { z } from "zod";
 import { recordSchema, type HealthCheckIn } from "../health/validation";
 import { shiftDate } from "../health/dates";
 import {
+  spo2NeedsReview,
+  spo2Label,
+  spo2ReviewMessage,
+  usableSpo2,
+} from "../health/integrity";
+import {
   defaultAnalysisConfig,
   indicatorConfig,
   indicators,
@@ -37,6 +43,8 @@ export function formatIndicatorValue(
   statistic = false,
 ): string {
   if (value === null) return "Not recorded";
+  if (key === "spo2" && typeof value === "number" && spo2NeedsReview(value))
+    return spo2Label(value);
   return typeof value === "number"
     ? `${statistic ? Number(value.toFixed(Math.max(1, indicatorConfig[key].digits))) : value} ${indicatorConfig[key].unit}`
     : value;
@@ -251,7 +259,16 @@ export function analyzeHealthRecords(
   const validClock =
     z.iso.datetime({ offset: true }).safeParse(options.asOf).success &&
     Number.isFinite(Date.parse(options.asOf));
-  const { records, quality, urgent } = normalized(input, options, validClock);
+  const {
+    records: originalRecords,
+    quality,
+    urgent,
+  } = normalized(input, options, validClock);
+  // Explicit analysis view: preserve original records in the report and storage.
+  // Only this uncertain measurement is excluded; other measurements still count.
+  const records = originalRecords.map((row) =>
+    spo2NeedsReview(row.spo2) ? { ...row, spo2: usableSpo2(row.spo2) } : row,
+  );
   const current = records.at(-1) ?? null;
   const today = validClock
     ? new Date(options.asOf).toISOString().slice(0, 10)
@@ -287,6 +304,8 @@ export function analyzeHealthRecords(
     "All usable values are retained. A rolling median reduces influence of extremes but cannot certify a physiological baseline.",
     "Submission time is not a device measurement time. Mission dates use the fictional mission’s UTC calendar.",
   ];
+  if (originalRecords.some((row) => spo2NeedsReview(row.spo2)))
+    limitations.push(spo2ReviewMessage);
   if (!validClock)
     limitations.push(
       "Analysis clock is invalid; no statistical assessment was generated.",
@@ -658,8 +677,8 @@ export function analyzeHealthRecords(
     profileId: options.profileId,
     asOf: options.asOf,
     validClock,
-    records,
-    current,
+    records: originalRecords,
+    current: originalRecords.at(-1) ?? null,
     metrics,
     observations,
     urgentRecordIds: urgent,

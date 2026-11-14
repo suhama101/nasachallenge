@@ -75,7 +75,7 @@ test("complete astronaut journey preserves saved data and selected scenarios acr
   await expect(
     page.getByRole("heading", { name: "Demo check-in saved" }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "View history", exact: true }).click();
+  await page.getByRole("link", { name: "View Health History", exact: true }).click();
   await expect(page.locator(".checkin-details")).toHaveCount(15);
   await page.reload();
   await expect(page.locator(".checkin-details")).toHaveCount(15);

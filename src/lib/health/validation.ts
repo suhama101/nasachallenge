@@ -47,6 +47,23 @@ const optionalInputNumber = (min: number, max: number) =>
       .transform((v) => v ?? null),
   );
 
+const optionalSpo2 = z.preprocess(
+  normalizeNumber,
+  z
+    .number({
+      error:
+        "Enter an oxygen saturation number, or leave this optional field blank.",
+    })
+    .min(
+      1,
+      "Enter SpO₂ from 1 to 100%, or leave it blank if not measured. Zero is not accepted.",
+    )
+    .max(100, "SpO₂ cannot exceed 100%. Check the reading or leave it blank.")
+    .nullable()
+    .optional()
+    .transform((value) => value ?? null),
+);
+
 export const checkInInputSchema = z
   .object({
     missionDate: z
@@ -56,7 +73,7 @@ export const checkInInputSchema = z
     systolic: inputNumber(1, 400, true),
     diastolic: inputNumber(1, 300, true),
     temperature: inputNumber(20, 50),
-    spo2: inputNumber(0, 100),
+    spo2: optionalSpo2,
     glucose: optionalInputNumber(1, 2000),
     sleep: inputNumber(0, 24),
     mood: z.enum(moods, { error: "Choose a mood." }),
@@ -95,7 +112,11 @@ export const recordSchema = z
     systolic: numeric(1, 400, true).nullable(),
     diastolic: numeric(1, 300, true).nullable(),
     temperature: numeric(20, 50).nullable(),
-    spo2: numeric(0, 100).nullable(),
+    // Legacy zero remains readable for explicit review, never silently repaired.
+    spo2: numeric(0, 100)
+      .nullable()
+      .optional()
+      .transform((value) => value ?? null),
     glucose: numeric(1, 2000).nullable(),
     sleep: numeric(0, 24).nullable(),
     mood: z.enum(moods).nullable(),

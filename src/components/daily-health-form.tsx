@@ -50,9 +50,10 @@ const vitalFields = [
     name: "spo2",
     label: "Blood oxygen saturation (SpO₂)",
     unit: "%",
-    min: 0,
+    min: 1,
     max: 100,
     step: "any",
+    optional: true,
   },
   {
     name: "glucose",
@@ -100,6 +101,53 @@ type NumberField = {
   step: number | string;
   optional?: boolean;
 };
+const numberGuidance: Record<string, { help: string; example: string }> = {
+  heartRate: {
+    help: "Enter your resting pulse in beats per minute. Nothing is measured automatically.",
+    example: "e.g. 72",
+  },
+  systolic: {
+    help: "Enter the top number from your blood-pressure reading.",
+    example: "e.g. 120",
+  },
+  diastolic: {
+    help: "Enter the bottom number from the same blood-pressure reading.",
+    example: "e.g. 80",
+  },
+  temperature: {
+    help: "Enter the temperature measured using your thermometer, in degrees Celsius.",
+    example: "e.g. 36.8",
+  },
+  spo2: {
+    help: "Enter the oxygen saturation reading from your pulse oximeter. Use 1–100%, or leave blank if not measured. Zero is not accepted; this is an input rule, not a medical reference range.",
+    example: "e.g. 98",
+  },
+  glucose: {
+    help: "If measured, enter blood glucose in mg/dL. Otherwise leave blank; do not enter zero for a missing reading.",
+    example: "e.g. 95",
+  },
+  sleep: {
+    help: "How many hours did you sleep during your last sleep period? Decimals are welcome; 4.5 means four and a half hours.",
+    example: "e.g. 7.5",
+  },
+  exercise: {
+    help: "How many minutes did you exercise during this mission day? Enter 0 if none.",
+    example: "e.g. 45",
+  },
+  water: {
+    help: "If you tracked water, enter liters for this mission day. Leave blank if unknown; 0 means you recorded none.",
+    example: "e.g. 2.0",
+  },
+};
+const fieldLabels: Record<string, string> = Object.fromEntries(
+  [...vitalFields, ...wellnessFields].map((field) => [field.name, field.label]),
+);
+Object.assign(fieldLabels, {
+  missionDate: "Mission date",
+  mood: "Mood",
+  fatigue: "Fatigue level",
+  notes: "Notes",
+});
 export function DailyHealthForm() {
   const { select } = useInsights();
   const { save, today } = useHealth();
@@ -147,7 +195,7 @@ export function DailyHealthForm() {
       );
     } catch {
       setErrors({
-        form: "The check-in could not be saved. Your form values are kept. Check browser storage permissions or available space, then retry; retrying this submission will not create a duplicate.",
+        form: "Your check-in could not be saved, but your entries are still here. Allow this site to save information in this browser, check available space, then try again. Retrying Save will not create a duplicate.",
       });
       focusErrors();
     } finally {
@@ -166,10 +214,12 @@ export function DailyHealthForm() {
     );
   }
   function numberField(field: NumberField) {
+    const guidance = numberGuidance[field.name];
     return (
       <div className="form-field" key={field.name}>
         <label htmlFor={field.name}>
-          {field.label} <span>{field.optional ? "(optional)" : "*"}</span>
+          {field.label}{" "}
+          <span>{field.optional ? "(optional)" : "(required)"}</span>
         </label>
         <div className="input-unit">
           <input
@@ -180,14 +230,31 @@ export function DailyHealthForm() {
             min={field.min}
             max={field.max}
             step={field.step}
+            placeholder={guidance.example}
             required={!field.optional}
+            onBlur={(event) => {
+              const schema =
+                checkInInputSchema.shape[
+                  field.name as keyof typeof checkInInputSchema.shape
+                ];
+              const result = schema.safeParse(event.target.value);
+              setErrors((current) => {
+                const next = { ...current };
+                if (result.success) delete next[field.name];
+                else
+                  next[field.name] =
+                    result.error.issues[0]?.message ?? "Check this entry.";
+                return next;
+              });
+            }}
             aria-invalid={!!errors[field.name]}
-            aria-describedby={
-              errors[field.name] ? `${field.name}-error` : undefined
-            }
+            aria-describedby={`${field.name}-help${errors[field.name] ? ` ${field.name}-error` : ""}`}
           />
           <span>{field.unit}</span>
         </div>
+        <p className="input-help" id={`${field.name}-help`}>
+          {guidance.help}
+        </p>
         {errors[field.name] && (
           <p className="field-error" id={`${field.name}-error`}>
             {errors[field.name]}
@@ -209,6 +276,10 @@ export function DailyHealthForm() {
           <div>
             <h2>Demo check-in saved</h2>
             <p>
+              Your check-in was added successfully. You can review it now or
+              record another check-in when you are ready.
+            </p>
+            <p>
               Mission date: {displayDate(saved.missionDate)} · Recorded:{" "}
               {displayTimestamp(saved.recordedAt)}. History and dashboard now
               use this record.
@@ -216,7 +287,7 @@ export function DailyHealthForm() {
             <div className="inline-actions">
               <Button asChild size="sm">
                 <Link href="/health-history">
-                  View history
+                  View Health History
                   <ArrowRight size={14} />
                 </Link>
               </Button>
@@ -225,7 +296,7 @@ export function DailyHealthForm() {
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link href="/health-insights" onClick={() => select("saved")}>
-                  Analyze saved records
+                  View Health Insights
                   <ArrowRight size={14} />
                 </Link>
               </Button>
@@ -261,9 +332,7 @@ export function DailyHealthForm() {
                       }}
                     >
                       {message}{" "}
-                      <span>
-                        ({field === "missionDate" ? "mission date" : field})
-                      </span>
+                      <span>({fieldLabels[field] ?? "Check this field"})</span>
                     </a>
                   )}
                 </li>
@@ -281,15 +350,17 @@ export function DailyHealthForm() {
               <div>
                 <h2>Check-in details</h2>
                 <p>
-                  Fields marked * are required. Optional blanks are saved as
-                  “not recorded.”
+                  Fields labeled “required” must be filled in. SpO₂, glucose,
+                  water and notes are optional. Leave an unmeasured optional
+                  field blank; it will show “Not recorded.” Examples are
+                  fictional, not medical targets.
                 </p>
               </div>
             </div>
             <div className="form-grid">
               <div className="form-field">
                 <label htmlFor="missionDate">
-                  Mission-local date <span>*</span>
+                  Mission-local date <span>(required)</span>
                 </label>
                 <input
                   id="missionDate"
@@ -334,7 +405,7 @@ export function DailyHealthForm() {
               {wellnessFields.map(numberField)}
               <div className="form-field">
                 <label htmlFor="mood">
-                  Mood <span>*</span>
+                  Mood <span>(required)</span>
                 </label>
                 <select
                   id="mood"
@@ -342,7 +413,7 @@ export function DailyHealthForm() {
                   defaultValue=""
                   required
                   aria-invalid={!!errors.mood}
-                  aria-describedby={errors.mood ? "mood-error" : undefined}
+                  aria-describedby={`mood-help${errors.mood ? " mood-error" : ""}`}
                 >
                   <option value="" disabled>
                     Choose a mood
@@ -353,6 +424,11 @@ export function DailyHealthForm() {
                     </option>
                   ))}
                 </select>
+                <p id="mood-help" className="input-help">
+                  Choose the word that best describes how you felt this mission
+                  day. This is a personal description, not a mental-health
+                  assessment.
+                </p>
                 {errors.mood && (
                   <p className="field-error" id="mood-error">
                     {errors.mood}
@@ -361,7 +437,7 @@ export function DailyHealthForm() {
               </div>
               <div className="form-field">
                 <label htmlFor="fatigue">
-                  Fatigue level <span>*</span>
+                  Fatigue level <span>(required)</span>
                 </label>
                 <select
                   id="fatigue"
@@ -447,6 +523,7 @@ export function DailyHealthForm() {
                 name="notes"
                 rows={4}
                 maxLength={2000}
+                placeholder="e.g. Fictional demo: sleep was interrupted by a schedule change."
                 aria-invalid={!!errors.notes}
                 aria-describedby="notes-help notes-error"
               />

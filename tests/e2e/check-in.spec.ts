@@ -41,7 +41,7 @@ test("save → reload → filter → dashboard → confirmed reset", async ({
   await expect(
     page.getByRole("heading", { name: "Demo check-in saved" }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "View history", exact: true }).click();
+  await page.getByRole("link", { name: "View Health History", exact: true }).click();
   await expect(
     page.getByRole("status").filter({ hasText: "15 of 15 check-ins" }),
   ).toBeVisible();

@@ -6,6 +6,8 @@ An astronaut health-monitoring research prototype for NASA Space Apps Challenge 
 
 ## Run locally
 
+**Step 6A integrity/usability release:** SpO₂ is now optional; blanks stay missing, new entries use the 1–100% input contract, and legacy out-of-contract readings remain stored with visible review flags. The owner approved publication to the existing project on 14 November 2026; verify the exact Vercel commit and Ready status before reporting it live. See [the investigation](docs/spo2-integrity.md) and [future Astronaut Mode plan](docs/astronaut-mode-plan.md). Supabase and Groq configuration remain unchanged.
+
 Open **Explore MissionPulse Demo** on Mission Overview or `/demo`. The guide preserves existing saved records and connects the check-in, history, insights, assistant and research workflows. See [the timed demo script](docs/demo-script.md) and [submission readiness audit](docs/submission-readiness.md). Phase 5 publication has been approved; verify Vercel's exact commit and production alias before treating a release as deployed.
 
 Use Node.js **24.x** and npm. No login, Supabase project, API keys or environment file is required.
@@ -51,7 +53,7 @@ Read [the complete methodology](docs/analysis-methodology.md) for formulas, per-
 
 ## Other implemented features
 
-- Full required vital signs: heart rate, systolic/diastolic blood pressure, temperature and SpO₂; optional glucose.
+- Required vital signs: heart rate, systolic/diastolic blood pressure and temperature; optional SpO₂ and glucose. Optional missing values stay null, not zero.
 - Sleep, mood, fatigue (0–10), exercise; optional water, symptoms and notes.
 - Shared Zod validation at form and repository boundaries, field errors, focusable linked error summary, success confirmation and duplicate-submit protection.
 - IndexedDB transactions with atomic first-initialization marker and seeds; no volatile-memory fallback that pretends to save successfully.
@@ -65,17 +67,17 @@ Read [the complete methodology](docs/analysis-methodology.md) for formulas, per-
 
 The required form checks are data-entry guardrails, **not** normal medical ranges. Unusual but plausible values are accepted. Blank required values fail; optional blanks become `null`, never zero. Zero sleep/exercise/fatigue/water are preserved when explicitly entered. NaN, infinity, malformed dates, unknown enum values, overlong notes and reversed blood-pressure entries fail.
 
-| Field                | Broad input bounds                                      |
-| -------------------- | ------------------------------------------------------- |
-| Resting heart rate   | 1–350 bpm, whole number                                 |
-| Systolic / diastolic | 1–400 / 1–300 mmHg, whole numbers; systolic > diastolic |
-| Temperature          | 20–50 °C                                                |
-| SpO₂                 | 0–100%                                                  |
-| Optional glucose     | 1–2,000 mg/dL                                           |
-| Sleep                | 0–24 hours                                              |
-| Fatigue              | Integer 0–10                                            |
-| Exercise             | Integer 0–1,440 minutes                                 |
-| Optional water       | 0–30 liters                                             |
+| Field                | Broad input bounds                                                                                          |
+| -------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Resting heart rate   | 1–350 bpm, whole number                                                                                     |
+| Systolic / diastolic | 1–400 / 1–300 mmHg, whole numbers; systolic > diastolic                                                     |
+| Temperature          | 20–50 °C                                                                                                    |
+| SpO₂                 | Optional; 1–100% for new entries. Legacy zero is retained and flagged for review, not used in calculations. |
+| Optional glucose     | 1–2,000 mg/dL                                                                                               |
+| Sleep                | 0–24 hours                                                                                                  |
+| Fatigue              | Integer 0–10                                                                                                |
+| Exercise             | Integer 0–1,440 minutes                                                                                     |
+| Optional water       | 0–30 liters                                                                                                 |
 
 These broad limits do not certify clinical validity or establish medical risk. Bounds are centralized in `src/lib/health/validation.ts` and mirrored as database constraints. Future operational use needs qualified clinical review. Stored record types also support missing vital signs for future imports; the UI never replaces a missing value with an older reading or a fabricated measurement.
 
@@ -150,7 +152,7 @@ npm.cmd test
 npm.cmd run test:e2e
 ```
 
-- `npm test`: 139 tests covering check-ins, repositories, Phase 3 analysis and the Phase 4 assistant, including the documented 14-question evaluation set, retrieval/citations, exact values, consent, isolated context, safety, mocked Groq/atomic budget calls, HTTP validation, timeout/fallback behavior and persistent/corrupt storage. Fixtures are deterministic; no clinical accuracy is claimed.
+- `npm test`: tests cover check-ins, repositories, Phase 3 analysis, the assistant evaluation set, and SpO₂ write/read integrity, including absence, legacy review, non-mutation, arithmetic, persistence, consent, citations, request validation, provider fallback and urgency. See the integrity report for current measured test counts. Fixtures are deterministic; no clinical accuracy is claimed.
 - `npm run test:e2e`: the complete form → save → history → reload → filters → dashboard → reset path at desktop (1440px), tablet (834px) and mobile (390px), including plotted values, duplicate submit events, no horizontal overflow and runtime-error checks. Uses installed **Microsoft Edge** via Playwright (`channel: "msedge"`) and isolated browser contexts. Reuses localhost:3000 if running, or starts a server there. If Edge is unavailable, install it or change the channel to a locally installed supported browser. Screenshots and failure traces stay in ignored `test-results/`.
 - `npm run test:watch`: interactive unit-test development.
 - The browser suite covers Phase 2–3 workflows plus Phase 4 library search, topic navigation, consent, persistent conversations, scenario isolation, live-request payloads and urgent fallback across desktop, tablet and mobile. Provider responses are mocked; no paid API calls are required. Use `PLAYWRIGHT_BASE_URL` only for an explicitly approved review target.

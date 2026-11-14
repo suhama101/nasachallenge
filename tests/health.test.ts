@@ -67,7 +67,6 @@ describe("form and domain validation", () => {
     "systolic",
     "diastolic",
     "temperature",
-    "spo2",
     "sleep",
     "mood",
     "fatigue",

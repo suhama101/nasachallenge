@@ -7,6 +7,12 @@ import {
 import { indicatorConfig, indicators } from "../insights/config";
 import { displayDate, displayTimestamp, shiftDate } from "../health/dates";
 import { sourceLabel } from "../health/selectors";
+import {
+  usableMeasurement,
+  spo2NeedsReview,
+  spo2ReviewMessage,
+  spo2Label,
+} from "../health/integrity";
 import type { HealthCheckIn } from "../health/validation";
 import {
   scopedRecords,
@@ -165,6 +171,14 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
         mode: "demo",
         minBaseline: input.minBaseline,
       });
+      if (report.records.some((row) => spo2NeedsReview(row.spo2)))
+        base.sections.push({
+          id: "spo2-review",
+          kind: "notice",
+          title: "Saved oxygen readings need review",
+          text: spo2ReviewMessage,
+          sourceIds: [],
+        });
       if (base.category === "explanation") {
         const requested = requestedIndicators(input.question);
         const observations = report.observations
@@ -212,14 +226,16 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
           );
           const present = available.reduce(
             (sum, row) =>
-              sum + selected.filter((key) => row[key] !== null).length,
+              sum +
+              selected.filter((key) => usableMeasurement(row, key) !== null)
+                .length,
             0,
           );
           base.sections.push({
             id: "missing-data",
             kind: "recorded",
             title: "Calculated record completeness",
-            text: `Over ${displayDate(shiftDate(today, 1 - range))}–${displayDate(today)} (UTC), ${present} of ${expected} indicator-day cells are recorded; ${expected - present} are missing. ${range - available.length} mission dates have no usable check-in. One latest-submitted check-in per mission date is counted.\n\n${selected.map((key) => `${indicatorConfig[key].label}: ${available.filter((row) => row[key] !== null).length} of ${range} dates`).join("\n")}\n\nThese are availability counts, not a medical reliability score.`,
+            text: `Over ${displayDate(shiftDate(today, 1 - range))}–${displayDate(today)} (UTC), ${present} of ${expected} indicator-day cells have usable recorded values; ${expected - present} are missing or excluded. ${range - available.length} mission dates have no usable check-in. One latest-submitted check-in per mission date is counted.\n\n${selected.map((key) => `${indicatorConfig[key].label}: ${available.filter((row) => usableMeasurement(row, key) !== null).length} of ${range} dates`).join("\n")}\n\nThese are availability counts, not a medical reliability score.`,
             sourceIds: [],
           });
         } else if (!keys.length) {
@@ -232,7 +248,9 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
           });
         } else {
           for (const key of keys) {
-            const points = data.filter((row) => row[key] !== null);
+            const points = data.filter(
+              (row) => usableMeasurement(row, key) !== null,
+            );
             const numeric = points
               .map((row) => row[key])
               .filter((value): value is number => typeof value === "number");
@@ -257,7 +275,17 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
               id: `recorded-${key}`,
               kind: "recorded",
               title: `Recorded demonstration values · ${indicatorConfig[key].label}`,
-              text: `${yesterday ? `Selected mission date: ${displayDate(shiftDate(today, -1))}` : `Selected range: ${displayDate(shiftDate(today, 1 - range))}–${displayDate(today)}`} (UTC).\n\n${detail || "Not recorded: no usable reading for this indicator in the selected period."}${!yesterday && mean !== null ? `\n\nArithmetic mean: ${formatIndicatorValue(key, mean, true)} (n=${numeric.length}); ${range - points.length} mission dates lack this reading.` : ""}${difference !== null ? `\nFirst-to-last recorded change: ${difference > 0 ? "+" : ""}${Number(difference.toFixed(2))} ${key === "spo2" ? "percentage points" : indicatorConfig[key].unit}. This is descriptive, not a medical assessment.` : ""}`,
+              text: `${yesterday ? `Selected mission date: ${displayDate(shiftDate(today, -1))}` : `Selected range: ${displayDate(shiftDate(today, 1 - range))}–${displayDate(today)}`} (UTC).\n\n${detail || "Not recorded: no usable reading for this indicator in the selected period."}${
+                key === "spo2"
+                  ? data
+                      .filter((row) => spo2NeedsReview(row.spo2))
+                      .map(
+                        (row) =>
+                          `\n${displayDate(row.missionDate)}: saved ${spo2Label(row.spo2)}. Original entry kept.`,
+                      )
+                      .join("")
+                  : ""
+              }${!yesterday && mean !== null ? `\n\nArithmetic mean: ${formatIndicatorValue(key, mean, true)} (n=${numeric.length}); ${range - points.length} mission dates lack a usable reading.` : ""}${difference !== null ? `\nFirst-to-last recorded change: ${difference > 0 ? "+" : ""}${Number(difference.toFixed(2))} ${key === "spo2" ? "percentage points" : indicatorConfig[key].unit}. This is descriptive, not a medical assessment.` : ""}`,
               sourceIds: [],
             });
           }

@@ -22,6 +22,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import type { HealthCheckIn } from "@/lib/health/validation";
+import { usableSpo2, spo2NeedsReview, spo2Label } from "@/lib/health/integrity";
 import {
   average,
   chartRecords,
@@ -83,6 +84,8 @@ export function TrendChart({
   const Icon = config.icon;
   const data = chartRecords(records).map((row) => ({
     ...row,
+    spo2: usableSpo2(row.spo2),
+    originalSpo2: row.spo2,
     label: displayDate(row.missionDate),
   }));
   const hasValues = data.some((row) =>
@@ -240,6 +243,13 @@ export function TrendChart({
         Synthetic and user-entered demo records · mission dates (UTC)
         {kind === "bloodPressure" && " · Cyan: systolic / Violet: diastolic"}
       </p>
+      {kind === "spo2" && records.some((row) => spo2NeedsReview(row.spo2)) && (
+        <p className="data-review-note">
+          Saved oxygen readings outside current entry rules need review and are
+          excluded from this chart and its average. Original values remain in
+          the table and check-in details.
+        </p>
+      )}
       <details className="data-details chart-table">
         <summary>View {config.title.toLowerCase()} data table</summary>
         <div className="table-scroll">
@@ -267,18 +277,20 @@ export function TrendChart({
                   <td>{displayTimestamp(row.recordedAt)}</td>
                   {keys.map((key) => (
                     <td key={key}>
-                      {measurement(
-                        row[
-                          key as
-                            | "heartRate"
-                            | "systolic"
-                            | "diastolic"
-                            | "sleep"
-                            | "temperature"
-                            | "spo2"
-                        ],
-                        config.unit,
-                      )}
+                      {kind === "spo2"
+                        ? spo2Label(row.originalSpo2)
+                        : measurement(
+                            row[
+                              key as
+                                | "heartRate"
+                                | "systolic"
+                                | "diastolic"
+                                | "sleep"
+                                | "temperature"
+                                | "spo2"
+                            ],
+                            config.unit,
+                          )}
                     </td>
                   ))}
                   <td>{sourceLabel(row.source)}</td>

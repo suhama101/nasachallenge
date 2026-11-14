@@ -11,11 +11,11 @@ export function DemoBanner() {
     <aside className="demo-storage-banner">
       <Database size={18} />
       <p>
-        <strong>Local demo · fictional crew member Alex Morgan.</strong>{" "}
-        Synthetic seed records and your user-entered demo readings stay in this
-        browser’s IndexedDB. Assistant sharing requires separate explicit
-        consent. Nothing is measured automatically or uploaded to Supabase. Use
-        fictional values only. Mission-local dates use UTC.
+        <strong>Local demo · fictional crew member Alex Morgan.</strong> Sample
+        check-ins are labeled synthetic. Your entries are saved in this browser,
+        not synchronized to an account. Assistant sharing requires separate
+        explicit consent. No readings are collected automatically. Use fictional
+        values only. Dates use UTC.
       </p>
     </aside>
   );
@@ -52,7 +52,7 @@ export function ResetDemoData() {
       await reset();
       setOpen(false);
       setMessage(
-        "All local demo records were removed. The database will stay empty until you save a new check-in.",
+        "All local demo records were removed. Your history will stay empty until you save a new check-in.",
       );
     } catch {
       setError(
@@ -92,8 +92,8 @@ export function ResetDemoData() {
             </AlertDialog.Title>
             <AlertDialog.Description>
               This removes {records.length} check-ins from this browser,
-              including your entries. This cannot be undone. Seed data will not
-              return on refresh.
+              including your entries. This cannot be undone. Sample data will
+              not return on refresh.
             </AlertDialog.Description>
             {error && (
               <p role="alert" className="field-error">

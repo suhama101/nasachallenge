@@ -28,6 +28,11 @@ import { scientificReferences } from "@/lib/insights/references";
 import { displayDate, displayTimestamp } from "@/lib/health/dates";
 import { sourceLabel } from "@/lib/health/selectors";
 import { mission } from "@/lib/mock-data";
+import {
+  spo2NeedsReview,
+  spo2ReviewMessage,
+  spo2Label,
+} from "@/lib/health/integrity";
 import type { AnalysisReport } from "@/lib/insights/types";
 
 function BaselineComparisons({ report }: { report: AnalysisReport }) {
@@ -68,10 +73,13 @@ function BaselineComparisons({ report }: { report: AnalysisReport }) {
               <tr key={metric.key}>
                 <th scope="row">{indicatorConfig[metric.key].label}</th>
                 <td>
-                  {formatIndicatorValue(
-                    metric.key,
-                    metric.current?.value ?? null,
-                  )}
+                  {metric.key === "spo2" &&
+                  spo2NeedsReview(report.current?.spo2)
+                    ? spo2Label(report.current?.spo2)
+                    : formatIndicatorValue(
+                        metric.key,
+                        metric.current?.value ?? null,
+                      )}
                 </td>
                 <td>
                   {metric.baseline === null
@@ -266,6 +274,19 @@ export function HealthInsights() {
   );
   return (
     <>
+      {report.records.some((row) => spo2NeedsReview(row.spo2)) && (
+        <aside
+          className="panel data-review-banner"
+          role="note"
+          aria-label="Oxygen readings need review"
+        >
+          <h2>Saved oxygen readings need review</h2>
+          <p>{spo2ReviewMessage}</p>
+          <Link href="/health-history">
+            Review the original check-ins in Health History →
+          </Link>
+        </aside>
+      )}
       <section
         className="panel insight-controls"
         aria-label="Analysis dataset and settings"

@@ -24,6 +24,11 @@ import {
 import { displayDate, displayTimestamp, shiftDate } from "@/lib/health/dates";
 import { formatIndicatorValue } from "@/lib/insights/analyze";
 import { sourceLabel } from "@/lib/health/selectors";
+import {
+  usableMeasurement,
+  spo2NeedsReview,
+  spo2Label,
+} from "@/lib/health/integrity";
 const tooltipStyle = {
   background: "#121e30",
   border: "1px solid #42536b",
@@ -55,7 +60,7 @@ export function InsightsAnalytics({
     return {
       date,
       label: displayDate(date),
-      value: record?.[indicator] ?? null,
+      value: record ? usableMeasurement(record, indicator) : null,
       sleep: record?.sleep ?? null,
       fatigue: record?.fatigue ?? null,
       record,
@@ -71,7 +76,9 @@ export function InsightsAnalytics({
   const completeness = indicators.map((key) => ({
     label: indicatorConfig[key].label,
     complete: report.records.filter(
-      (row) => row.missionDate >= shiftDate(today, -6) && row[key] !== null,
+      (row) =>
+        row.missionDate >= shiftDate(today, -6) &&
+        usableMeasurement(row, key) !== null,
     ).length,
   }));
   const hasTrend = data.some((point) => point.value !== null);
@@ -399,7 +406,11 @@ export function InsightsAnalytics({
               {data.map((row) => (
                 <tr key={row.date}>
                   <th scope="row">{displayDate(row.date)}</th>
-                  <td>{formatIndicatorValue(indicator, row.value)}</td>
+                  <td>
+                    {indicator === "spo2" && spo2NeedsReview(row.record?.spo2)
+                      ? spo2Label(row.record?.spo2)
+                      : formatIndicatorValue(indicator, row.value)}
+                  </td>
                   <td>{row.sleep ?? "Not recorded"}</td>
                   <td>{row.fatigue ?? "Not recorded"}</td>
                   <td>

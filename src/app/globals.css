@@ -3441,3 +3441,59 @@ footer p {
     margin-left: 0;
   }
 }
+.history-guide,
+.data-review-banner {
+  padding: 22px 24px;
+  margin: 20px 0;
+}
+.history-guide h2,
+.data-review-banner h2 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.history-guide p,
+.data-review-banner p {
+  color: #b5c5d6;
+  font-size: 13px;
+  line-height: 1.85;
+  margin: 9px 0;
+}
+.history-guide a,
+.data-review-banner a {
+  display: inline-block;
+  color: #8de4d8;
+  font-size: 12px;
+  margin: 8px 0;
+}
+.data-review-banner {
+  border-color: #aa895047;
+  border-left: 3px solid #d5b270;
+  background: #191c23;
+}
+.data-review-note {
+  color: #e0c18a;
+  font-size: 12px;
+  line-height: 1.85;
+  padding: 12px 14px;
+  border-left: 2px solid #d5b270;
+  margin: 12px 0;
+}
+.checkin-details .record-coverage {
+  color: #c3d0dd;
+  font-size: 11px;
+  line-height: 1.7;
+  white-space: normal;
+}
+.form-field .input-help {
+  max-width: 65ch;
+}
+@media (max-width: 600px) {
+  .history-guide,
+  .data-review-banner {
+    padding: 19px;
+  }
+  .record-coverage {
+    max-width: 240px;
+  }
+}

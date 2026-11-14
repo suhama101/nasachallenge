@@ -1,4 +1,5 @@
 import type { HealthCheckIn } from "./validation";
+import { usableMeasurement } from "./integrity";
 export function newestFirst(
   records: readonly HealthCheckIn[],
 ): HealthCheckIn[] {
@@ -22,7 +23,6 @@ export function hasCompleteCheckInForDate(
     "systolic",
     "diastolic",
     "temperature",
-    "spo2",
     "sleep",
     "mood",
     "fatigue",
@@ -59,7 +59,7 @@ export function average(
   key: "heartRate" | "sleep" | "temperature" | "spo2",
 ): string | null {
   const values = records
-    .map((r) => r[key])
+    .map((r) => usableMeasurement(r, key))
     .filter((n): n is number => n !== null);
   return values.length
     ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
