@@ -42,6 +42,7 @@ export function fromDatabase(
     water: row.water,
     symptoms: row.symptoms,
     notes: row.notes,
+    urgentSymptomReported: row.urgent_symptom_reported,
     source: row.data_source,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -84,6 +85,7 @@ export function toDatabase(
     water: record.water,
     symptoms: record.symptoms,
     notes: record.notes,
+    urgent_symptom_reported: record.urgentSymptomReported,
     data_source: record.source,
   };
 }

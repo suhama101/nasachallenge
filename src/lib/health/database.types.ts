@@ -26,6 +26,7 @@ export type HealthCheckInRow = {
   water: number | null;
   symptoms: string[];
   notes: string;
+  urgent_symptom_reported: boolean;
   data_source: string;
   created_at: string;
   updated_at: string;

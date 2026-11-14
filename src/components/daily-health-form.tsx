@@ -105,6 +105,7 @@ export function DailyHealthForm() {
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState<HealthCheckIn | null>(null);
   const [version, setVersion] = useState(0);
+  const [urgent, setUrgent] = useState(false);
   const inFlight = useRef(false);
   const submissionId = useRef<string | null>(null);
   const summary = useRef<HTMLDivElement>(null);
@@ -120,6 +121,7 @@ export function DailyHealthForm() {
       ...values,
       symptoms: form.getAll("symptoms"),
       notes: form.get("notes") ?? "",
+      urgentSymptomReported: form.get("urgentSymptomReported") === "on",
     });
     if (!result.success) {
       const next: Record<string, string> = {};
@@ -156,6 +158,7 @@ export function DailyHealthForm() {
     setSaved(null);
     setErrors({});
     setVersion((v) => v + 1);
+    setUrgent(false);
     requestAnimationFrame(() =>
       document.getElementById("missionDate")?.focus(),
     );
@@ -385,6 +388,33 @@ export function DailyHealthForm() {
           </section>
           <section className="panel form-section">
             <h2>Symptoms & notes</h2>
+            <label className="urgent-report-control">
+              <input
+                type="checkbox"
+                name="urgentSymptomReported"
+                checked={urgent}
+                onChange={(event) => setUrgent(event.target.checked)}
+              />
+              I am reporting an urgent symptom and need immediate assessment
+            </label>
+            <p className="input-help">
+              This is your explicit urgency report. Notes and symptom names are
+              not automatically screened for emergencies. A saved urgent flag
+              remains visible; this prototype does not track its resolution.
+            </p>
+            {urgent && (
+              <div className="urgent-banner" role="alert">
+                <strong>
+                  Seek immediate assessment through the crew’s established
+                  medical emergency procedure.
+                </strong>
+                <p>
+                  Do not wait to complete this form. No approved medical
+                  escalation protocol is configured in MissionPulse; it does not
+                  provide treatment instructions.
+                </p>
+              </div>
+            )}
             <fieldset className="symptoms-fieldset">
               <legend>Select any symptoms that apply (optional)</legend>
               <p className="input-help">

@@ -1,5 +1,7 @@
 # GitHub → Vercel deployment
 
+**Phase 3 release approval:** The owner explicitly approved committing and deploying the verified Health Insights release to the existing `main` branch and `missionpulse` Vercel project on 14 November 2026. Production URL remains https://missionpulse.vercel.app. Verify the exact new commit and Ready state in Vercel; the deployment records below describe earlier setup.
+
 **Phase 2 release:** The owner explicitly approved committing Phase 2 to `main` and deploying it through the existing GitHub/Vercel connection on 14 November 2026. The original deployment record below documents initial hosting setup. Use Vercel's current production deployment and commit SHA to confirm the latest release. See README.md for the check-in/history workflow and tests.
 
 ## Live deployment
@@ -51,16 +53,16 @@ Do not push until you approve publishing this source to the selected repository.
 3. Sign in at https://vercel.com/new. Connect your GitHub account and authorize the Vercel GitHub App to access **only this repository** when selecting repositories.
 4. Import `suhama101/nasachallenge` and review these settings:
 
-   | Setting | Value |
-   | --- | --- |
-   | Framework preset | Next.js |
-   | Root Directory | `.` (repository root; package.json is here) |
-   | Install command | Default, or `npm ci` |
-   | Build command | `npm run build` |
-   | Output directory | Framework default; no override |
-   | Node.js | 24.x, matching local verification |
-   | Environment variables | None |
-   | Production branch | `main` |
+   | Setting               | Value                                       |
+   | --------------------- | ------------------------------------------- |
+   | Framework preset      | Next.js                                     |
+   | Root Directory        | `.` (repository root; package.json is here) |
+   | Install command       | Default, or `npm ci`                        |
+   | Build command         | `npm run build`                             |
+   | Output directory      | Framework default; no override              |
+   | Node.js               | 24.x, matching local verification           |
+   | Environment variables | None                                        |
+   | Production branch     | `main`                                      |
 
    If you instead place the app in a `missionpulse/` subfolder of a larger repository, set Root Directory to `missionpulse`. Do not use that setting for the repository-root layout prepared here.
 
@@ -78,4 +80,4 @@ References: [Vercel GitHub integration](https://vercel.com/docs/git/vercel-for-g
 
 ## Known limitations
 
-Only Phase 1 is implemented. No authentication, storage, medical algorithms or AI integrations are present. The previous dependency audit found seven moderate development-only advisories in the linting dependency chain and zero production dependency vulnerabilities; a compatible automatic fix did not resolve the development advisories. A successful local build verifies deployability, not a completed hosted deployment.
+Phases 1–3 implement the interface, browser-persisted demo check-ins/history, and explainable prototype statistical monitoring. Supabase authentication, live database access, approved clinical protocols and AI integrations are not configured. Statistical rules are unvalidated and do not establish medical status. Optional live SQL/RLS tests require a disposable Supabase database and have not been run. The previous dependency audit found seven moderate development-only advisories in the linting dependency chain and zero production dependency vulnerabilities; a compatible automatic fix did not resolve the development advisories. A successful local build alone does not verify hosted deployment.

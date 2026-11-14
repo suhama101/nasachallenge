@@ -160,7 +160,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               this browser.
             </p>
             <span>
-              PHASE 02 <span>•</span> LOCAL DEMO
+              PHASE 03 <span>•</span> LOCAL DEMO
             </span>
           </div>
           <Link

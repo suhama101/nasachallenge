@@ -75,6 +75,14 @@ export function CheckInDetails({ record }: { record: HealthCheckIn }) {
             </dd>
           </div>
           <div>
+            <dt>Urgent symptom explicitly reported</dt>
+            <dd>
+              {record.urgentSymptomReported
+                ? "Yes — immediate assessment through the crew’s established medical emergency procedure; this app does not track resolution."
+                : "No urgent flag recorded (not an assessment of symptoms)."}
+            </dd>
+          </div>
+          <div>
             <dt>Created / updated (UTC)</dt>
             <dd>
               {displayTimestamp(record.createdAt)} /{" "}

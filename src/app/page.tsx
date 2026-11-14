@@ -7,14 +7,13 @@ import {
   Clock3,
   FlaskConical,
   Orbit,
-  Sparkles,
   BookOpen,
   CalendarDays,
 } from "lucide-react";
 import { PageLayout, PageHeading } from "@/components/page-layout";
 import { LatestMeasurements } from "@/components/metric-card";
 import { HealthCharts } from "@/components/health-charts";
-import { ObservationCard } from "@/components/observation-card";
+import { InsightsSummary } from "@/components/insight-card";
 import { Button } from "@/components/ui/button";
 import { mission } from "@/lib/mock-data";
 import { useHealth } from "@/components/health-provider";
@@ -22,29 +21,12 @@ import { DemoBanner, HealthDataBoundary } from "@/components/demo-status";
 import {
   hasCompleteCheckInForDate,
   latestRecord,
-  sourceLabel,
 } from "@/lib/health/selectors";
 import { displayDate, displayTimestamp } from "@/lib/health/dates";
 export default function Overview() {
   const { records, today } = useHealth();
   const latest = latestRecord(records);
   const todayRecorded = hasCompleteCheckInForDate(records, today);
-  const observations = [
-    {
-      kind: "heart" as const,
-      title: latest
-        ? "Your most recent stored check-in"
-        : "Your record is ready to begin",
-      detail: latest
-        ? `Mission date: ${displayDate(latest.missionDate)}. Source: ${sourceLabel(latest.source)}. Each summary card uses this same record; missing measurements are left empty.`
-        : "Record a demo check-in to populate your dashboard. No measurements are inferred or automatically measured.",
-    },
-    {
-      kind: "sleep" as const,
-      title: "Context stays with the measurements",
-      detail: `${records.length} check-ins stored in this browser, including ${records.filter((record) => record.source === "user-entered-demo").length} user-entered demo entries. Open Health History for timestamps, symptoms and notes. These counts are not a health assessment.`,
-    },
-  ];
   return (
     <PageLayout>
       <PageHeading
@@ -54,7 +36,7 @@ export default function Overview() {
         action={
           <span className="phase-pill">
             <FlaskConical size={14} />
-            Research demo <span>v0.2</span>
+            Research demo <span>v0.3</span>
           </span>
         }
       />
@@ -157,32 +139,7 @@ export default function Overview() {
         )}
         {today && <HealthCharts records={records} today={today} />}
         <div className="bottom-grid">
-          <section
-            className="panel observations-panel"
-            aria-labelledby="observations-title"
-          >
-            <div className="panel-title">
-              <h2 id="observations-title">
-                <Sparkles size={17} />
-                Record context
-              </h2>
-              <span className="mini-label">DESCRIPTIVE ONLY</span>
-            </div>
-            {observations.map((o) => (
-              <ObservationCard
-                key={o.kind}
-                observation={o}
-                recordedAt={latest?.recordedAt}
-              />
-            ))}
-            <div className="observation-footer">
-              Stored record summaries, not a clinical assessment.
-              <Link href="/health-insights">
-                About insights
-                <ArrowUpRight size={14} />
-              </Link>
-            </div>
-          </section>
+          <InsightsSummary />
           <section
             className="panel knowledge-panel"
             aria-labelledby="knowledge-title"

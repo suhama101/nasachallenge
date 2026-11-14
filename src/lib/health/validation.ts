@@ -71,6 +71,7 @@ export const checkInInputSchema = z
         "Select each symptom only once.",
       ),
     notes: z.string().trim().max(2000, "Use no more than 2,000 characters."),
+    urgentSymptomReported: z.boolean().default(false),
   })
   .refine((v) => v.systolic > v.diastolic, {
     path: ["diastolic"],
@@ -103,6 +104,7 @@ export const recordSchema = z
     water: numeric(0, 30).nullable(),
     symptoms: z.array(z.enum(symptoms)).max(symptoms.length),
     notes: z.string().max(2000),
+    urgentSymptomReported: z.boolean().default(false),
   })
   .refine(
     (v) =>

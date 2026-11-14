@@ -41,6 +41,19 @@ const valid = {
 };
 const input = () => checkInInputSchema.parse(valid);
 describe("form and domain validation", () => {
+  it("loads Phase 2 records without an urgent flag as not explicitly reported", () => {
+    const legacy = {
+      id: crypto.randomUUID(),
+      profileId: DEMO_PROFILE_ID,
+      recordedAt: "2026-11-14T10:00:00Z",
+      createdAt: "2026-11-14T10:00:00Z",
+      updatedAt: "2026-11-14T10:00:00Z",
+      source: "synthetic",
+      ...input(),
+    };
+    delete (legacy as Partial<typeof legacy>).urgentSymptomReported;
+    expect(recordSchema.parse(legacy).urgentSymptomReported).toBe(false);
+  });
   it("parses form numbers and preserves missing optionals without inventing zeros", () => {
     expect(input()).toMatchObject({
       heartRate: 72,

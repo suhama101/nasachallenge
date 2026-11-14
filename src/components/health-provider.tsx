@@ -16,6 +16,7 @@ type HealthContextValue = {
   loading: boolean;
   error: string | null;
   today: string;
+  analysisAt: string;
   refresh: () => Promise<void>;
   save: (input: CheckInInput, id: string) => Promise<HealthCheckIn>;
   reset: () => Promise<void>;
@@ -27,6 +28,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [today, setToday] = useState("");
+  const [analysisAt, setAnalysisAt] = useState("");
   const sequence = useRef(0);
   const channel = useRef<BroadcastChannel | null>(null);
   const refresh = useCallback(() => {
@@ -37,6 +39,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         if (request === sequence.current) {
           setRecords(rows);
           setToday(missionToday());
+          setAnalysisAt(new Date().toISOString());
           setError(null);
         }
       })
@@ -55,7 +58,10 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     void refresh();
     const onFocus = () => void refresh();
     window.addEventListener("focus", onFocus);
-    const timer = window.setInterval(() => setToday(missionToday()), 60_000);
+    const timer = window.setInterval(() => {
+      setToday(missionToday());
+      setAnalysisAt(new Date().toISOString());
+    }, 60_000);
     if (typeof BroadcastChannel !== "undefined") {
       const value = new BroadcastChannel("missionpulse-demo-updates");
       value.onmessage = onFocus;
@@ -82,7 +88,16 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   };
   return (
     <HealthContext.Provider
-      value={{ records, loading, error, today, refresh, save, reset }}
+      value={{
+        records,
+        loading,
+        error,
+        today,
+        analysisAt,
+        refresh,
+        save,
+        reset,
+      }}
     >
       {children}
     </HealthContext.Provider>
