@@ -1,7 +1,13 @@
 import { DocumentLink } from "@/components/document-link";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-export function ModeEntry({ compact = false }: { compact?: boolean }) {
+export function ModeEntry({
+  compact = false,
+  showActions = true,
+}: {
+  compact?: boolean;
+  showActions?: boolean;
+}) {
   return (
     <section
       className={`mode-entry ${compact ? "compact" : ""}`}
@@ -15,14 +21,16 @@ export function ModeEntry({ compact = false }: { compact?: boolean }) {
           profile. Record check-ins, review your personal history, and explore
           descriptive insights from your own entries.
         </p>
-        <div className="account-actions">
-          <Button asChild>
-            <DocumentLink href="/auth/login">Sign In</DocumentLink>
-          </Button>
-          <Button asChild variant="outline">
-            <DocumentLink href="/auth/signup">Create Account</DocumentLink>
-          </Button>
-        </div>
+        {showActions && (
+          <div className="account-actions">
+            <Button asChild>
+              <DocumentLink href="/auth/login">Sign In</DocumentLink>
+            </Button>
+            <Button asChild variant="outline">
+              <DocumentLink href="/auth/signup">Create Account</DocumentLink>
+            </Button>
+          </div>
+        )}
       </div>
       <div className="mode-card">
         <p className="eyebrow">NO ACCOUNT REQUIRED</p>
@@ -31,9 +39,11 @@ export function ModeEntry({ compact = false }: { compact?: boolean }) {
           Try fictional check-ins, insights, scenarios, and research. Demo
           entries stay in this browser and are never added to an account.
         </p>
-        <Button asChild variant="outline">
-          <Link href="/demo">Explore Demo</Link>
-        </Button>
+        {showActions && (
+          <Button asChild variant="outline">
+            <Link href="/demo">Explore Demo</Link>
+          </Button>
+        )}
       </div>
     </section>
   );

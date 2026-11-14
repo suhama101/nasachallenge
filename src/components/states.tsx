@@ -35,7 +35,7 @@ export function EmptyState({
       <p>{description}</p>
       {children}
       <Button variant="outline" asChild>
-        <Link href="/">
+        <Link href="/demo/overview">
           <ArrowLeft size={16} />
           Back to Mission Overview
         </Link>

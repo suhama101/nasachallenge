@@ -38,7 +38,7 @@ test("complete astronaut journey preserves saved data and selected scenarios acr
     if (request.url().includes("/api/assistant") && request.method() === "POST")
       apiPosts++;
   });
-  await page.goto("/");
+  await page.goto("/demo/overview");
   await page
     .getByRole("link", { name: "Explore MissionPulse Demo", exact: true })
     .click();
@@ -208,7 +208,7 @@ test("complete astronaut journey preserves saved data and selected scenarios acr
 test("keyboard navigation, mobile menu, chart alternatives and demo entry are operable", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/demo/overview");
   await page.keyboard.press("Tab");
   await expect(
     page.getByRole("link", { name: "Skip to content" }),

@@ -34,6 +34,7 @@ import { BaselineComparisons } from "./health-insights";
 import { InsightCard } from "./insight-card";
 import { InsightsAnalytics } from "./insights-analytics";
 import { Button } from "./ui/button";
+import { JourneyCards } from "./journey-cards";
 const csaResearch = knowledgeEntries.find(
   (entry) => entry.id === "space-research",
 );
@@ -146,6 +147,7 @@ function PersonalOverview({ profile }: { profile: AstronautProfileRow }) {
   const latest = latestRecord(records);
   return (
     <>
+      <JourneyCards personal />
       <section className="panel personal-next">
         <h2>
           {hasCompleteCheckInForDate(records, today)

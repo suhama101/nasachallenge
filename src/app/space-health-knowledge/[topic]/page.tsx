@@ -36,15 +36,15 @@ export default async function TopicPage({
       />
       <div className="knowledge-detail-grid">
         <article className="panel knowledge-detail">
-          <h2>Why it matters in space</h2>
+          <h2>Why might astronauts monitor this?</h2>
           <p>{entry.whyItMatters}</p>
-          <h2>Relevant monitoring context</h2>
+          <h2>Which measurements or context are relevant?</h2>
           <ul>
             {entry.indicators.map((indicator) => (
               <li key={indicator}>{indicator}</li>
             ))}
           </ul>
-          <h2>General recording considerations</h2>
+          <h2>A non-diagnostic next step</h2>
           <p>{entry.monitoring}</p>
           <h2>Scientific limitations</h2>
           <p>{entry.limitations}</p>

@@ -29,6 +29,9 @@ export function DemoGuide() {
             <ArrowRight size={16} />
           </Link>
         </Button>
+        <Button asChild variant="outline">
+          <Link href="/demo/overview">Open Mission Overview</Link>
+        </Button>
         <p className="demo-preservation">
           <ShieldCheck size={16} />
           This guide adds no records and deletes nothing. Enter fictional

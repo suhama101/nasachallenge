@@ -10,6 +10,7 @@ import { InsightsProvider } from "./insights-provider";
 export function ApplicationFrame({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   if (
+    path === "/" ||
     path === "/welcome" ||
     path === "/astronaut" ||
     path.startsWith("/astronaut/") ||

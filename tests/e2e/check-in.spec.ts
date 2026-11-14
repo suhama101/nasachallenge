@@ -77,7 +77,7 @@ test("save → reload → filter → dashboard → confirmed reset", async ({
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
-  await page.goto("/");
+  await page.goto("/demo/overview");
   await expect(
     page.getByText("Today’s user-entered demo check-in is complete"),
   ).toBeVisible();
@@ -115,7 +115,7 @@ test("save → reload → filter → dashboard → confirmed reset", async ({
       name: "Your history starts with one check-in.",
     }),
   ).toBeVisible();
-  await page.goto("/");
+  await page.goto("/demo/overview");
   await expect(
     page.getByRole("heading", { name: "No check-ins yet" }),
   ).toBeVisible();

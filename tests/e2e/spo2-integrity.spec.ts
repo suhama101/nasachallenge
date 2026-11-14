@@ -122,7 +122,7 @@ test("optional oxygen remains not recorded through save, history, charts, dashbo
   await chart.locator(".chart-table summary").click();
   await expect(chart.getByRole("table")).toContainText("Not recorded");
   await expect(chart.locator(".recharts-area-dot")).toHaveCount(14);
-  await page.goto("/");
+  await page.goto("/demo/overview");
   await expect(
     page.getByText("Today’s user-entered demo check-in is complete"),
   ).toBeVisible();

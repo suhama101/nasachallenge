@@ -1,14 +1,7 @@
-import { ModeEntry } from "@/components/mode-entry";
+import { WelcomeExperience } from "@/components/welcome-experience";
+
 export const metadata = { title: "Welcome" };
-export default function Welcome() {
-  return (
-    <div className="account-wide">
-      <p className="eyebrow">HUMAN HEALTH. BEYOND EARTH.</p>
-      <h1>Your mission starts here.</h1>
-      <p className="account-intro">
-        Choose a personal workspace or take a guided tour with fictional data.
-      </p>
-      <ModeEntry />
-    </div>
-  );
+
+export default function WelcomePage() {
+  return <WelcomeExperience />;
 }

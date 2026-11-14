@@ -9,7 +9,7 @@ export default function NotFound() {
         <h1>Page not found</h1>
         <p>This route isn’t part of the mission.</p>
         <Button asChild>
-          <Link href="/">Return to Mission Overview</Link>
+          <Link href="/demo/overview">Return to Mission Overview</Link>
         </Button>
       </div>
     </PageLayout>

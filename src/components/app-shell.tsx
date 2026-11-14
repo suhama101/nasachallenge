@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { useHealth } from "@/components/health-provider";
 import { displayDate } from "@/lib/health/dates";
 const navigation = [
-  { href: "/", label: "Mission Overview", icon: LayoutDashboard },
+  { href: "/demo/overview", label: "Mission Overview", icon: LayoutDashboard },
   {
     href: "/daily-health-check",
     label: "Daily Health Check",
@@ -103,7 +103,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         role={open ? "dialog" : undefined}
         aria-modal={open ? true : undefined}
       >
-        <Link className="brand" href="/" onClick={() => setOpen(false)}>
+        <Link
+          className="brand"
+          href="/demo/overview"
+          onClick={() => setOpen(false)}
+        >
           <span className="brand-symbol">
             <Activity size={25} />
           </span>

@@ -43,7 +43,7 @@ test("isolated scenarios, evidence, analytics and dashboard agree without changi
   await expect(
     page.getByRole("heading", { name: "Demo check-in saved" }),
   ).toBeVisible();
-  await page.goto("/");
+  await page.goto("/demo/overview");
   await expect(page.locator(".metric-value").first()).toBeVisible();
   const savedHeart = await page.locator(".metric-value").first().textContent();
   await navigate(page, "Health Insights");
