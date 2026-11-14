@@ -146,7 +146,7 @@ function BaselineComparisons({ report }: { report: AnalysisReport }) {
                 <dd>
                   {metric.variability === null
                     ? "Not available"
-                    : `${metric.variability.toFixed(2)} ${indicatorConfig[metric.key].unit}`}
+                    : `${metric.variability.toFixed(2)} ${metric.key === "spo2" ? "percentage points" : indicatorConfig[metric.key].unit}`}
                 </dd>
               </div>
               <div>
@@ -154,7 +154,7 @@ function BaselineComparisons({ report }: { report: AnalysisReport }) {
                 <dd>
                   {metric.slope === null
                     ? "Insufficient numeric samples"
-                    : `${metric.slope.toFixed(2)} ${indicatorConfig[metric.key].unit} per calendar day · n=${metric.trendSamples}`}
+                    : `${metric.slope.toFixed(2)} ${metric.key === "spo2" ? "percentage points" : indicatorConfig[metric.key].unit} per calendar day · n=${metric.trendSamples}`}
                 </dd>
               </div>
               <div>
@@ -228,7 +228,17 @@ export function HealthInsights() {
     setScenarioUrgency,
   } = useInsights();
   const [days, setDays] = useState<7 | 30>(7);
-  const [indicator, setIndicator] = useState<NumericIndicator>("heartRate");
+  const [trendChoice, setTrendChoice] = useState<{
+    selection: string;
+    indicator: NumericIndicator;
+  }>({ selection: "saved", indicator: "heartRate" });
+  const indicator =
+    trendChoice.selection === selection
+      ? trendChoice.indicator
+      : (scenarioDefinitions.find((item) => item.id === selection)?.indicator ??
+        "heartRate");
+  const setIndicator = (value: NumericIndicator) =>
+    setTrendChoice({ selection, indicator: value });
   const timeline = useMemo(
     () =>
       report?.validClock
@@ -311,6 +321,7 @@ export function HealthInsights() {
         {scenario && (
           <div className="scenario-notice" role="status">
             <strong>{scenario.name} — synthetic preview</strong>
+            <p>{scenario.context}</p>
             <p>
               Analysis uses {selectedRecords.length} separate synthetic
               check-ins for a scenario-only profile. Saved health history and
@@ -321,6 +332,12 @@ export function HealthInsights() {
             <Button size="sm" variant="outline" onClick={() => select("saved")}>
               Return to saved records
             </Button>
+            <Link
+              className="scenario-knowledge"
+              href={`/space-health-knowledge/${scenario.knowledgeTopic}`}
+            >
+              Explore related NASA research →
+            </Link>
           </div>
         )}
         {selection === "heart-rate" && (

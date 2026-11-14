@@ -11,6 +11,7 @@ import {
 import { displayDate, displayTimestamp } from "@/lib/health/dates";
 import { useHealth } from "./health-provider";
 import { Button } from "./ui/button";
+import { useInsights } from "./insights-provider";
 
 const vitalFields = [
   {
@@ -100,6 +101,7 @@ type NumberField = {
   optional?: boolean;
 };
 export function DailyHealthForm() {
+  const { select } = useInsights();
   const { save, today } = useHealth();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -220,6 +222,12 @@ export function DailyHealthForm() {
               </Button>
               <Button variant="outline" size="sm" onClick={newCheckIn}>
                 Record another check-in
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/health-insights" onClick={() => select("saved")}>
+                  Analyze saved records
+                  <ArrowRight size={14} />
+                </Link>
               </Button>
             </div>
           </div>

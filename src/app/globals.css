@@ -3323,3 +3323,121 @@ footer p {
     gap: 2px;
   }
 }
+.overview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.demo-introduction,
+.demo-boundaries {
+  padding: 28px;
+  margin-top: 24px;
+}
+.demo-introduction h2 {
+  font-size: 24px;
+  line-height: 1.5;
+  margin: 14px 0;
+}
+.demo-introduction > p:not(.eyebrow),
+.demo-boundaries p,
+.demo-boundaries dd {
+  color: #acbed1;
+  font-size: 13px;
+  line-height: 1.9;
+}
+.demo-introduction > a {
+  margin: 22px 0 0;
+}
+.demo-preservation {
+  display: flex;
+  align-items: start;
+  gap: 9px;
+  margin-top: 20px;
+}
+.demo-preservation svg {
+  margin-top: 4px;
+  color: #80dace;
+}
+.demo-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 22px 0 30px;
+  list-style: none;
+  padding: 0;
+}
+.demo-step {
+  padding: 22px;
+}
+.demo-step > span {
+  display: block;
+  color: #82d9ce;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+.demo-step h2 {
+  font-size: 15px;
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+.demo-step h2 a,
+.demo-preview {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.demo-step p {
+  color: #a5b7ca;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.demo-preview,
+.scenario-knowledge,
+.demo-boundaries a {
+  color: #80dace;
+  font-size: 12px;
+}
+.scenario-knowledge {
+  display: inline-block;
+  margin: 12px 0 0 14px;
+}
+.demo-scenarios .scenario-knowledge {
+  margin: 0;
+}
+.demo-boundaries h2 {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+.demo-boundaries dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+.demo-boundaries dt {
+  color: #d7e5ef;
+  font-size: 13px;
+  margin-bottom: 9px;
+}
+@media (max-width: 1100px) {
+  .demo-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .demo-steps,
+  .demo-boundaries dl {
+    grid-template-columns: 1fr;
+  }
+  .demo-introduction,
+  .demo-boundaries {
+    padding: 21px;
+  }
+  .overview-actions {
+    margin-top: 6px;
+  }
+  .scenario-knowledge {
+    margin-left: 0;
+  }
+}

@@ -2,9 +2,11 @@
 
 An astronaut health-monitoring research prototype for NASA Space Apps Challenge 2026. Independent project; not NASA-endorsed or a certified medical diagnostic system. No clinical diagnosis, risk scoring or treatment recommendations are generated.
 
-**Phase 4 adds a curated research library and grounded assistant.** Production URL: https://missionpulse.vercel.app. The owner approved publishing Phase 4 to the existing GitHub/Vercel project on 14 November 2026. Verify the exact deployed commit and Ready status before reporting a release as live. Live Groq remains disabled without complete private configuration.
+**Phase 5 adds an audited, guided mission demonstration and quality improvements to the Phase 4 knowledge library and assistant.** Production URL: https://missionpulse.vercel.app. The owner approved publishing Phase 5 to the existing GitHub/Vercel project on 14 November 2026. Verify the exact deployed commit and Ready status before reporting a release as live. Live Groq remains disabled without complete private configuration.
 
 ## Run locally
+
+Open **Explore MissionPulse Demo** on Mission Overview or `/demo`. The guide preserves existing saved records and connects the check-in, history, insights, assistant and research workflows. See [the timed demo script](docs/demo-script.md) and [submission readiness audit](docs/submission-readiness.md). Phase 5 publication has been approved; verify Vercel's exact commit and production alias before treating a release as deployed.
 
 Use Node.js **24.x** and npm. No login, Supabase project, API keys or environment file is required.
 
@@ -148,7 +150,7 @@ npm.cmd test
 npm.cmd run test:e2e
 ```
 
-- `npm test`: 125 tests covering check-ins, repositories, Phase 3 analysis and the Phase 4 assistant, including retrieval/citations, exact values, consent, isolated context, safety, mocked Groq/atomic budget calls, HTTP validation, timeout/fallback behavior and persistent/corrupt storage. Fixtures are deterministic; no clinical accuracy is claimed.
+- `npm test`: 139 tests covering check-ins, repositories, Phase 3 analysis and the Phase 4 assistant, including the documented 14-question evaluation set, retrieval/citations, exact values, consent, isolated context, safety, mocked Groq/atomic budget calls, HTTP validation, timeout/fallback behavior and persistent/corrupt storage. Fixtures are deterministic; no clinical accuracy is claimed.
 - `npm run test:e2e`: the complete form → save → history → reload → filters → dashboard → reset path at desktop (1440px), tablet (834px) and mobile (390px), including plotted values, duplicate submit events, no horizontal overflow and runtime-error checks. Uses installed **Microsoft Edge** via Playwright (`channel: "msedge"`) and isolated browser contexts. Reuses localhost:3000 if running, or starts a server there. If Edge is unavailable, install it or change the channel to a locally installed supported browser. Screenshots and failure traces stay in ignored `test-results/`.
 - `npm run test:watch`: interactive unit-test development.
 - The browser suite covers Phase 2–3 workflows plus Phase 4 library search, topic navigation, consent, persistent conversations, scenario isolation, live-request payloads and urgent fallback across desktop, tablet and mobile. Provider responses are mocked; no paid API calls are required. Use `PLAYWRIGHT_BASE_URL` only for an explicitly approved review target.

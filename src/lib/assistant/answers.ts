@@ -33,6 +33,12 @@ export type LocalQuestion = {
 export function questionCategory(
   question: string,
 ): AssistantAnswer["category"] {
+  if (
+    /what (?:information|details|context).*record|what should.*record/i.test(
+      question,
+    )
+  )
+    return "education";
   const personal =
     /\b(my|mine|our|i|me)\b/i.test(question) ||
     /missing.*(?:measurement|check|record)|(?:measurement|check|record).*missing/i.test(
@@ -103,6 +109,27 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
         concern === "urgent"
           ? emergencyMessage
           : "Ask an educational question or discuss clinical decisions with your designated crew medical officer.",
+    };
+  }
+  if (
+    /(?:records|history|measurements)\s+(?:for|of|from)\s+(?:another|other|astronaut|profile)|(?:another|other|private|nonexistent)\s+(?:astronaut.?s?\s+)?(?:records|history|profile)/i.test(
+      input.question,
+    )
+  ) {
+    return {
+      ...base,
+      category: "unsupported",
+      sections: [
+        {
+          id: "unavailable-profile",
+          kind: "notice",
+          title: "Only the selected fictional demo is available",
+          text: "I cannot access another astronaut’s records, private profiles or nonexistent medical records. This login-free prototype can use only the selected synthetic/browser demo that you explicitly approve. Dataset names are not authentication.",
+          sourceIds: [],
+        },
+      ],
+      nextStep:
+        "Choose the intended demo dataset and ask a supported question about its measurements.",
     };
   }
   const retrieved = retrieveKnowledge(input.question);

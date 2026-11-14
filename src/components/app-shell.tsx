@@ -209,7 +209,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link
               href="/crew-profile"
               className="avatar small"
-              aria-label="View crew profile"
+              aria-label="AM View crew profile for Alex Morgan"
             >
               {mission.initials}
             </Link>

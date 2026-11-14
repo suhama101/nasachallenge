@@ -4,6 +4,10 @@ export const scenarioDefinitions = [
   {
     id: "routine",
     name: "A · Routine monitoring",
+    indicator: "heartRate" as const,
+    knowledgeTopic: "cardiovascular",
+    context:
+      "Review a fictional crew member’s consistent daily monitoring under comparable recording conditions.",
     description:
       "Twenty-one synthetic daily check-ins with limited baseline changes.",
     profileId: "10000000-0000-4000-8000-000000000001",
@@ -11,6 +15,10 @@ export const scenarioDefinitions = [
   {
     id: "sleep-fatigue",
     name: "B · Sleep and fatigue",
+    indicator: "sleep" as const,
+    knowledgeTopic: "sleep",
+    context:
+      "Compare a fictional crew member’s recent sleep and fatigue entries with their earlier routine; workload and causes are not inferred.",
     description:
       "An established history followed by three days of decreasing sleep and increasing fatigue.",
     profileId: "10000000-0000-4000-8000-000000000002",
@@ -18,6 +26,10 @@ export const scenarioDefinitions = [
   {
     id: "heart-rate",
     name: "C · Resting heart-rate change",
+    indicator: "heartRate" as const,
+    knowledgeTopic: "cardiovascular",
+    context:
+      "Inspect a fictional crew member’s three higher heart-rate entries against an earlier personal median, without assigning medical risk.",
     description:
       "An established history followed by three higher resting heart-rate entries.",
     profileId: "10000000-0000-4000-8000-000000000003",

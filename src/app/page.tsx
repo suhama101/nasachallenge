@@ -34,10 +34,18 @@ export default function Overview() {
         title="Mission Overview"
         description="A clearer view of your health. A little closer to home."
         action={
-          <span className="phase-pill">
-            <FlaskConical size={14} />
-            Research demo <span>v0.3</span>
-          </span>
+          <div className="overview-actions">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/demo">
+                Explore MissionPulse Demo
+                <ArrowRight size={15} />
+              </Link>
+            </Button>
+            <span className="phase-pill">
+              <FlaskConical size={14} />
+              Research demo <span>v0.4</span>
+            </span>
+          </div>
         }
       />
       <section className="welcome-panel" aria-labelledby="welcome-title">
