@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+.vercel/
+.env*
+!.env.example
+*.tsbuildinfo
+
+# Logs, coverage, and private signing/credential files
+*.log
+coverage/
+.DS_Store
+*.pem
+*.key
+.aws/
+.ssh/

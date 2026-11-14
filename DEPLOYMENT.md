@@ -1,0 +1,69 @@
+# GitHub → Vercel deployment
+
+The Next.js app lives in this directory. Push its contents as the repository root to `https://github.com/suhama101/nasachallenge`. The repository can remain private while the deployed website is public. No Supabase or Groq keys are required.
+
+## Prepared and verified
+
+- `npm.cmd run lint`: passed.
+- `npm.cmd run typecheck`: passed.
+- `npm.cmd run build`: passed; overview and six planned module routes generated.
+- Existing `next.config.ts` uses standard Next.js defaults; no Vercel override file is required.
+- `.gitignore` excludes dependency/build directories, `.vercel`, all `.env*` files except the empty `.env.example`, logs, signing keys and common credential directories.
+- Application source has no environment-variable reads or Supabase/Groq requests.
+- The remote repository was reachable but returned no branch references at preparation time.
+- No deployment or public URL has been created or verified during preparation.
+
+## Manual account actions and approval boundary
+
+Do not push until you approve publishing this source to the selected repository. Do not select Deploy until you approve a public deployment. Repository visibility does not need to change.
+
+1. Sign in to GitHub as the owner of `suhama101/nasachallenge`. Confirm this is the intended repository and keep its existing visibility. No new repository is necessary.
+2. From this project folder, commit and push after reviewing the files:
+
+   ```powershell
+   cd "C:\Users\Suhama\Desktop\New folder\missionpulse"
+   git status --short
+   git add .
+   git commit -m "Prepare MissionPulse Phase 1 for Vercel"
+   git push -u origin main
+   ```
+
+   Complete GitHub's browser authentication if prompted. If Git requests an author identity, set your own `user.name` and `user.email` locally before committing. Do not put a token in the remote URL. If the remote has acquired commits since preparation, fetch and inspect them before integrating; do not force push.
+
+   Git reported different sandbox/user ownership during preparation. The preparation commands used a per-command exception scoped to this project. If your terminal reports **dubious ownership**, first trust only this project directory and then retry:
+
+   ```powershell
+   git config --global --add safe.directory "C:/Users/Suhama/Desktop/New folder/missionpulse"
+   ```
+
+3. Sign in at https://vercel.com/new. Connect your GitHub account and authorize the Vercel GitHub App to access **only this repository** when selecting repositories.
+4. Import `suhama101/nasachallenge` and review these settings:
+
+   | Setting | Value |
+   | --- | --- |
+   | Framework preset | Next.js |
+   | Root Directory | `.` (repository root; package.json is here) |
+   | Install command | Default, or `npm ci` |
+   | Build command | `npm run build` |
+   | Output directory | Framework default; no override |
+   | Node.js | 24.x, matching local verification |
+   | Environment variables | None |
+   | Production branch | `main` |
+
+   If you instead place the app in a `missionpulse/` subfolder of a larger repository, set Root Directory to `missionpulse`. Do not use that setting for the repository-root layout prepared here.
+
+5. After explicitly approving public deployment, click **Deploy**. Wait for **Ready**. Copy the assigned production URL from Vercel; do not infer a URL from the project name.
+6. Check project deployment-protection settings for the production domain. To enable public review, the production URL must be accessible without Vercel login. Preview URLs may retain their separate protection policy.
+7. Open the production URL in a signed-out/incognito browser. Check the overview, chart period selector, mobile navigation, six placeholder routes and an unknown route (404). Share the URL so it can also be verified from this session.
+
+## Automatic deployments
+
+Keep the GitHub repository connected in Vercel Project Settings → Git. The Vercel GitHub integration deploys branch pushes by default; pushes to the production branch update the production domain, while other branches receive preview deployments. Confirm `main` is the production branch. No GitHub Actions workflow or deployment token is needed for this integration.
+
+After connection, confirm automatic deployment using your next real approved change: push the commit, then verify Vercel shows that commit SHA and reaches Ready. This has not been tested during preparation because pushing can trigger deployment.
+
+References: [Vercel GitHub integration](https://vercel.com/docs/git/vercel-for-github), [Next.js on Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs).
+
+## Known limitations
+
+Only Phase 1 is implemented. No authentication, storage, medical algorithms or AI integrations are present. The previous dependency audit found seven moderate development-only advisories in the linting dependency chain and zero production dependency vulnerabilities; a compatible automatic fix did not resolve the development advisories. A successful local build verifies deployability, not a completed hosted deployment.
