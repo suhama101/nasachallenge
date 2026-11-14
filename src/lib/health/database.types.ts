@@ -1,4 +1,4 @@
-// Matches supabase/migrations/202611140001_health_records.sql.
+// Hand-maintained preparation through 202611140003_astronaut_accounts.sql.
 // Regenerate with the Supabase CLI after applying the migration to a real project.
 export type AstronautProfileRow = {
   id: string;
@@ -6,6 +6,10 @@ export type AstronautProfileRow = {
   display_name: string;
   crew_identifier: string;
   mission_name: string;
+  mission_environment:
+    "space-station" | "spacecraft" | "lunar-base" | "mars-base" | "other";
+  mission_start_date: string | null;
+  role: string | null;
   created_at: string;
 };
 export type HealthCheckInRow = {

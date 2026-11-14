@@ -7,6 +7,7 @@ import {
   moods,
   symptoms,
   type HealthCheckIn,
+  type CheckInInput,
 } from "@/lib/health/validation";
 import { displayDate, displayTimestamp } from "@/lib/health/dates";
 import { useHealth } from "./health-provider";
@@ -151,11 +152,41 @@ Object.assign(fieldLabels, {
 export function DailyHealthForm() {
   const { select } = useInsights();
   const { save, today } = useHealth();
+  return (
+    <HealthCheckInForm
+      save={save}
+      today={today}
+      onInsights={() => select("saved")}
+    />
+  );
+}
+export function HealthCheckInForm({
+  save,
+  today,
+  personal,
+  profileLabel,
+  initialRecord,
+  onInsights,
+  onSaved,
+  onCancel,
+}: {
+  save: (input: CheckInInput, id: string) => Promise<HealthCheckIn>;
+  today: string;
+  personal?: boolean;
+  profileLabel?: string;
+  initialRecord?: HealthCheckIn;
+  onInsights?: () => void;
+  onSaved?: (record: HealthCheckIn) => void;
+  onCancel?: () => void;
+}) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState<HealthCheckIn | null>(null);
   const [version, setVersion] = useState(0);
-  const [urgent, setUrgent] = useState(false);
+  const [urgent, setUrgent] = useState(
+    initialRecord?.urgentSymptomReported ?? false,
+  );
+  const [reviewChanges, setReviewChanges] = useState(false);
   const inFlight = useRef(false);
   const submissionId = useRef<string | null>(null);
   const summary = useRef<HTMLDivElement>(null);
@@ -183,6 +214,13 @@ export function DailyHealthForm() {
       focusErrors();
       return;
     }
+    if (initialRecord && !reviewChanges) {
+      setErrors({
+        form: "Review your changes and select the confirmation checkbox before saving.",
+      });
+      focusErrors();
+      return;
+    }
     inFlight.current = true;
     setBusy(true);
     setErrors({});
@@ -190,12 +228,15 @@ export function DailyHealthForm() {
       submissionId.current ??= crypto.randomUUID();
       const record = await save(result.data, submissionId.current);
       setSaved(record);
+      onSaved?.(record);
       requestAnimationFrame(() =>
         document.getElementById("save-confirmation")?.focus(),
       );
     } catch {
       setErrors({
-        form: "Your check-in could not be saved, but your entries are still here. Allow this site to save information in this browser, check available space, then try again. Retrying Save will not create a duplicate.",
+        form: personal
+          ? "Your check-in could not be saved or may have changed in another tab. Your entries are still here. Check your connection and retry, or reload History to review the latest version. Retrying an unchanged new check-in will not create a duplicate."
+          : "Your check-in could not be saved, but your entries are still here. Allow this site to save information in this browser, check available space, then try again. Retrying Save will not create a duplicate.",
       });
       focusErrors();
     } finally {
@@ -231,6 +272,10 @@ export function DailyHealthForm() {
             max={field.max}
             step={field.step}
             placeholder={guidance.example}
+            defaultValue={
+              (initialRecord?.[field.name as keyof HealthCheckIn] as
+                number | undefined) ?? ""
+            }
             required={!field.optional}
             onBlur={(event) => {
               const schema =
@@ -274,7 +319,13 @@ export function DailyHealthForm() {
         >
           <CheckCircle2 size={23} />
           <div>
-            <h2>Demo check-in saved</h2>
+            <h2>
+              {personal
+                ? initialRecord
+                  ? "Check-in changes saved"
+                  : "Personal check-in saved"
+                : "Demo check-in saved"}
+            </h2>
             <p>
               Your check-in was added successfully. You can review it now or
               record another check-in when you are ready.
@@ -286,16 +337,27 @@ export function DailyHealthForm() {
             </p>
             <div className="inline-actions">
               <Button asChild size="sm">
-                <Link href="/health-history">
+                <Link
+                  href={
+                    personal ? "/astronaut/health-history" : "/health-history"
+                  }
+                >
                   View Health History
                   <ArrowRight size={14} />
                 </Link>
               </Button>
-              <Button variant="outline" size="sm" onClick={newCheckIn}>
-                Record another check-in
-              </Button>
+              {!initialRecord && (
+                <Button variant="outline" size="sm" onClick={newCheckIn}>
+                  Record another check-in
+                </Button>
+              )}
               <Button asChild variant="outline" size="sm">
-                <Link href="/health-insights" onClick={() => select("saved")}>
+                <Link
+                  href={
+                    personal ? "/astronaut/health-insights" : "/health-insights"
+                  }
+                  onClick={onInsights}
+                >
                   View Health Insights
                   <ArrowRight size={14} />
                 </Link>
@@ -367,7 +429,7 @@ export function DailyHealthForm() {
                   name="missionDate"
                   type="date"
                   required
-                  defaultValue={today}
+                  defaultValue={initialRecord?.missionDate ?? today}
                   aria-invalid={!!errors.missionDate}
                   aria-describedby="date-help missionDate-error"
                 />
@@ -380,10 +442,13 @@ export function DailyHealthForm() {
                 </p>
               </div>
               <div className="form-context">
-                <strong>Alex Morgan / AST-0042</strong>
+                <strong>
+                  {personal ? profileLabel : "Alex Morgan / AST-0042"}
+                </strong>
                 <p>
-                  Fictional Asteria Expedition 07 crew member. Source:
-                  user-entered demo. No medical device is connected.
+                  {personal
+                    ? "Manually entered for your signed-in account. No medical device is connected. This is a self-described research or simulation profile."
+                    : "Fictional Asteria Expedition 07 crew member. Source: user-entered demo. No medical device is connected."}
                 </p>
               </div>
             </div>
@@ -410,7 +475,7 @@ export function DailyHealthForm() {
                 <select
                   id="mood"
                   name="mood"
-                  defaultValue=""
+                  defaultValue={initialRecord?.mood ?? ""}
                   required
                   aria-invalid={!!errors.mood}
                   aria-describedby={`mood-help${errors.mood ? " mood-error" : ""}`}
@@ -442,7 +507,7 @@ export function DailyHealthForm() {
                 <select
                   id="fatigue"
                   name="fatigue"
-                  defaultValue=""
+                  defaultValue={initialRecord?.fatigue ?? ""}
                   required
                   aria-invalid={!!errors.fatigue}
                   aria-describedby="fatigue-help fatigue-error"
@@ -508,7 +573,12 @@ export function DailyHealthForm() {
               <div className="symptom-options">
                 {symptoms.map((symptom) => (
                   <label key={symptom}>
-                    <input type="checkbox" name="symptoms" value={symptom} />
+                    <input
+                      type="checkbox"
+                      name="symptoms"
+                      value={symptom}
+                      defaultChecked={initialRecord?.symptoms.includes(symptom)}
+                    />
                     {symptom}
                   </label>
                 ))}
@@ -523,30 +593,57 @@ export function DailyHealthForm() {
                 name="notes"
                 rows={4}
                 maxLength={2000}
-                placeholder="e.g. Fictional demo: sleep was interrupted by a schedule change."
+                defaultValue={initialRecord?.notes ?? ""}
+                placeholder={
+                  personal
+                    ? "Optional context about this check-in."
+                    : "e.g. Fictional demo: sleep was interrupted by a schedule change."
+                }
                 aria-invalid={!!errors.notes}
                 aria-describedby="notes-help notes-error"
               />
               <p id="notes-help" className="input-help">
-                Up to 2,000 characters. Use fictional context; do not enter
-                personal medical information.
+                {personal
+                  ? "Up to 2,000 characters. Include only context relevant to this check-in; avoid names or details about other people."
+                  : "Up to 2,000 characters. Use fictional context; do not enter personal medical information."}
               </p>
               <p id="notes-error" className="field-error">
                 {errors.notes}
               </p>
             </div>
           </section>
+          {initialRecord && (
+            <label className="personal-confirm">
+              <input
+                type="checkbox"
+                checked={reviewChanges}
+                onChange={(event) => setReviewChanges(event.target.checked)}
+              />{" "}
+              I have reviewed these changes and want to update this check-in.
+            </label>
+          )}
           <div className="form-save">
             <p>
-              This saves to this browser only. It does not assess your health.
+              {personal
+                ? "This saves to your signed-in account. Measurements are manually entered; this app does not diagnose or assess your health."
+                : "This saves to this browser only. It does not assess your health."}
             </p>
             <Button type="submit" disabled={busy || !!saved}>
               {busy
                 ? "Saving check-in…"
                 : saved
                   ? "Check-in saved"
-                  : "Save demo check-in"}
+                  : personal
+                    ? initialRecord
+                      ? "Save check-in changes"
+                      : "Save personal check-in"
+                    : "Save demo check-in"}
             </Button>
+            {onCancel && (
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel editing
+              </Button>
+            )}
           </div>
         </fieldset>
       </form>

@@ -1,5 +1,18 @@
 # MissionPulse
 
+**Astronaut Mode (Phase 6B/6C):** signup/login, email verification,
+password reset, protected personal workspace and profile onboarding/editing are
+implemented. Start at `/welcome`. Demo mode remains independent and needs no keys.
+Phase 6C adds local authenticated check-in recording, owned cloud history with
+confirmed edits/deletes, and personal insights. See [Phase 6C verification and
+release gates](docs/phase-6c-personal-health.md). Live two-account RLS verification
+is still required; no deployment is authorized by this implementation task.
+See [setup, architecture and verification gates](docs/astronaut-mode-setup.md).
+The owner approved release of verified Phase 6B/6C and session fixes to the existing
+project on 15 November 2026, after passing checks. See [session findings, recovery
+instructions and publishing gates](docs/session-and-release.md). No production SQL
+or environment changes are included in that approval.
+
 An astronaut health-monitoring research prototype for NASA Space Apps Challenge 2026. Independent project; not NASA-endorsed or a certified medical diagnostic system. No clinical diagnosis, risk scoring or treatment recommendations are generated.
 
 **Phase 5 adds an audited, guided mission demonstration and quality improvements to the Phase 4 knowledge library and assistant.** Production URL: https://missionpulse.vercel.app. The owner approved publishing Phase 5 to the existing GitHub/Vercel project on 14 November 2026. Verify the exact deployed commit and Ready status before reporting a release as live. Live Groq remains disabled without complete private configuration.

@@ -302,7 +302,9 @@ export function analyzeHealthRecords(
     "Research demonstration; descriptive monitoring only. No clinical validation or NASA endorsement.",
     "One latest-submitted check-in per mission date is used; earlier same-day entries remain in Health History.",
     "All usable values are retained. A rolling median reduces influence of extremes but cannot certify a physiological baseline.",
-    "Submission time is not a device measurement time. Mission dates use the fictional mission’s UTC calendar.",
+    options.mode === "authenticated"
+      ? "Submission time is not a device measurement time. Your selected mission dates use the UTC calendar."
+      : "Submission time is not a device measurement time. Mission dates use the fictional mission’s UTC calendar.",
   ];
   if (originalRecords.some((row) => spo2NeedsReview(row.spo2)))
     limitations.push(spo2ReviewMessage);

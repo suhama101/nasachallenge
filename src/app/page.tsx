@@ -23,6 +23,7 @@ import {
   latestRecord,
 } from "@/lib/health/selectors";
 import { displayDate, displayTimestamp } from "@/lib/health/dates";
+import { ModeEntry } from "@/components/mode-entry";
 export default function Overview() {
   const { records, today } = useHealth();
   const latest = latestRecord(records);
@@ -48,6 +49,7 @@ export default function Overview() {
           </div>
         }
       />
+      <ModeEntry compact />
       <section className="welcome-panel" aria-labelledby="welcome-title">
         <div className="welcome-content">
           <p className="eyebrow">

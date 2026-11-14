@@ -240,7 +240,10 @@ export function TrendChart({
         </div>
       )}
       <p className="chart-source">
-        Synthetic and user-entered demo records · mission dates (UTC)
+        {records.length > 0 &&
+        records.every((row) => row.source === "user-entered")
+          ? "Manually entered personal records · mission dates (UTC)"
+          : "Synthetic and user-entered demo records · mission dates (UTC)"}
         {kind === "bloodPressure" && " · Cyan: systolic / Violet: diastolic"}
       </p>
       {kind === "spo2" && records.some((row) => spo2NeedsReview(row.spo2)) && (

@@ -35,7 +35,7 @@ import {
 } from "@/lib/health/integrity";
 import type { AnalysisReport } from "@/lib/insights/types";
 
-function BaselineComparisons({ report }: { report: AnalysisReport }) {
+export function BaselineComparisons({ report }: { report: AnalysisReport }) {
   const urgent = report.urgentRecordIds.length > 0;
   return (
     <section aria-labelledby="baseline-title">

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/inter";
 import "./globals.css";
-import { AppShell } from "@/components/app-shell";
-import { HealthProvider } from "@/components/health-provider";
-import { InsightsProvider } from "@/components/insights-provider";
+import { ApplicationFrame } from "@/components/application-frame";
 export const metadata: Metadata = {
   title: {
     default: "Mission Overview | MissionPulse",
@@ -20,11 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <HealthProvider>
-          <InsightsProvider>
-            <AppShell>{children}</AppShell>
-          </InsightsProvider>
-        </HealthProvider>
+        <ApplicationFrame>{children}</ApplicationFrame>
       </body>
     </html>
   );

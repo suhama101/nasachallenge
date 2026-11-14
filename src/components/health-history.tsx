@@ -22,7 +22,13 @@ import {
   recordCoverage,
 } from "@/lib/health/integrity";
 
-export function CheckInDetails({ record }: { record: HealthCheckIn }) {
+export function CheckInDetails({
+  record,
+  personal = false,
+}: {
+  record: HealthCheckIn;
+  personal?: boolean;
+}) {
   const coverage = recordCoverage(record);
   const values = [
     ["Resting heart rate", measurement(record.heartRate, "bpm")],
@@ -85,8 +91,11 @@ export function CheckInDetails({ record }: { record: HealthCheckIn }) {
           <div>
             <dt>Data provenance</dt>
             <dd>
-              {sourceLabel(record.source)} · Fictional profile AST-0042 · Not
-              automatically measured by a medical device.
+              {sourceLabel(record.source)} ·{" "}
+              {personal
+                ? "Your personal account"
+                : "Fictional profile AST-0042"}{" "}
+              · Not automatically measured by a medical device.
             </dd>
           </div>
           <div>

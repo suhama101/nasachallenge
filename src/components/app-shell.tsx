@@ -1,4 +1,6 @@
 "use client";
+import { DocumentLink } from "@/components/document-link";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -81,9 +83,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [open]);
   return (
     <>
-      <a href="#main-content" className="skip-link">
+      <DocumentLink href="#main-content" className="skip-link">
         Skip to content
-      </a>
+      </DocumentLink>
       {open && (
         <div
           className="sidebar-backdrop"
@@ -152,6 +154,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </ul>
         </nav>
         <div className="sidebar-bottom">
+          <DocumentLink className="nav-link" href="/welcome">
+            Switch mode / Sign In
+          </DocumentLink>
           <div className="demo-note">
             <FlaskConical size={18} />
             <strong>A space for exploration</strong>

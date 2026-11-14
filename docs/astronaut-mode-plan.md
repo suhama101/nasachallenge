@@ -1,5 +1,10 @@
 # Astronaut Mode implementation plan
 
+**Updated status:** the approved authentication/profile foundation is now
+implemented locally. See [the implementation and setup guide](astronaut-mode-setup.md).
+The following is the original planning record; private health persistence,
+cloud-history integration, real Supabase verification and deployment remain gated.
+
 Planning only: no authentication, production database connection, environment change, account creation or cloud import was implemented in this step. Explore Demo continues to work without credentials.
 
 ## Existing foundation

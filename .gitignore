@@ -1,5 +1,7 @@
 node_modules/
 .next/
+.next-auth-tests/
+tsconfig.auth-fixture.json
 out/
 .vercel/
 .env*
