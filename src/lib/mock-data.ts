@@ -7,55 +7,7 @@ export const mission = {
   initials: "AM",
   day: 42,
   duration: 180,
-  date: "2026-11-14",
-  displayDate: "14 November 2026",
-  recordedAt: "2026-11-14T07:30:00Z",
-  displayTime: "07:30 UTC",
-  source: "Synthetic demo dataset",
-  checkIn: "Recorded" as const,
 };
-export type Metric = {
-  id: string;
-  label: string;
-  value: string;
-  unit: string;
-  note: string;
-  color: "cyan" | "violet" | "blue" | "amber";
-};
-export const metrics: Metric[] = [
-  {
-    id: "heart",
-    label: "Resting heart rate",
-    value: "64",
-    unit: "bpm",
-    note: "Latest resting measurement",
-    color: "cyan",
-  },
-  {
-    id: "sleep",
-    label: "Sleep duration",
-    value: "7.2",
-    unit: "hours",
-    note: "Previous sleep period",
-    color: "violet",
-  },
-  {
-    id: "oxygen",
-    label: "Oxygen saturation",
-    value: "98",
-    unit: "% SpO₂",
-    note: "Latest spot measurement",
-    color: "blue",
-  },
-  {
-    id: "temperature",
-    label: "Body temperature",
-    value: "36.6",
-    unit: "°C",
-    note: "Latest spot measurement",
-    color: "amber",
-  },
-];
 export type TrendPoint = {
   date: string;
   label: string;
@@ -83,20 +35,6 @@ export type Observation = {
   detail: string;
   kind: "heart" | "sleep";
 };
-export const observations: Observation[] = [
-  {
-    title: "A small change in resting heart rate",
-    detail:
-      "The latest demo value is 64 bpm, compared with 65 bpm on 12 November. This comparison alone does not establish a health change.",
-    kind: "heart",
-  },
-  {
-    title: "Sleep varies across the week",
-    detail:
-      "The last seven synthetic sleep records range from 6.9 to 7.8 hours. Recording sleep context could help a future care team interpret patterns.",
-    kind: "sleep",
-  },
-];
 export const modules = [
   {
     slug: "daily-health-check",

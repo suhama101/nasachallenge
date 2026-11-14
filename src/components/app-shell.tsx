@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { mission } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
+import { useHealth } from "@/components/health-provider";
+import { displayDate } from "@/lib/health/dates";
 const navigation = [
   { href: "/", label: "Mission Overview", icon: LayoutDashboard },
   {
@@ -42,6 +44,7 @@ const navigation = [
 ];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { today } = useHealth();
   const [open, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const sidebar = useRef<HTMLElement>(null);
@@ -152,9 +155,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="demo-note">
             <FlaskConical size={18} />
             <strong>A space for exploration</strong>
-            <p>You’re viewing a research prototype with synthetic data.</p>
+            <p>
+              Fictional crew. Synthetic and user-entered demo data stored in
+              this browser.
+            </p>
             <span>
-              PHASE 01 <span>•</span> FRONTEND DEMO
+              PHASE 02 <span>•</span> LOCAL DEMO
             </span>
           </div>
           <Link
@@ -195,9 +201,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="header-right">
             <span className="demo-badge">
               <span />
-              Synthetic data
+              Local demo
             </span>
-            <span className="header-date">{mission.displayDate}</span>
+            <span className="header-date">
+              {today ? displayDate(today) : "Mission calendar · UTC"}
+            </span>
             <Link
               href="/crew-profile"
               className="avatar small"

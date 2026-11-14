@@ -1,5 +1,7 @@
 # GitHub → Vercel deployment
 
+**Phase 2 release:** The owner explicitly approved committing Phase 2 to `main` and deploying it through the existing GitHub/Vercel connection on 14 November 2026. The original deployment record below documents initial hosting setup. Use Vercel's current production deployment and commit SHA to confirm the latest release. See README.md for the check-in/history workflow and tests.
+
 ## Live deployment
 
 Production: **https://missionpulse.vercel.app**

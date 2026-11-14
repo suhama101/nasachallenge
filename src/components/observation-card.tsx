@@ -1,6 +1,13 @@
 import { Heart, Moon } from "lucide-react";
 import type { Observation } from "@/lib/mock-data";
-export function ObservationCard({ observation }: { observation: Observation }) {
+import { displayTimestamp } from "@/lib/health/dates";
+export function ObservationCard({
+  observation,
+  recordedAt,
+}: {
+  observation: Observation;
+  recordedAt?: string;
+}) {
   const Icon = observation.kind === "heart" ? Heart : Moon;
   return (
     <article className="observation">
@@ -11,7 +18,9 @@ export function ObservationCard({ observation }: { observation: Observation }) {
         <h3>{observation.title}</h3>
         <p>{observation.detail}</p>
         <span className="observation-meta">
-          Illustrative observation · 14 Nov 2026
+          {recordedAt
+            ? `Based on local records · Latest ${displayTimestamp(recordedAt)}`
+            : "Local demonstration · No clinical assessment"}
         </span>
       </div>
     </article>

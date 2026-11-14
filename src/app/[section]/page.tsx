@@ -4,7 +4,11 @@ import { modules } from "@/lib/mock-data";
 import { PageLayout, PageHeading } from "@/components/page-layout";
 import { EmptyState } from "@/components/states";
 export function generateStaticParams() {
-  return modules.map((m) => ({ section: m.slug }));
+  return modules
+    .filter(
+      (m) => m.slug !== "daily-health-check" && m.slug !== "health-history",
+    )
+    .map((m) => ({ section: m.slug }));
 }
 export const dynamicParams = false;
 export async function generateMetadata({
@@ -33,7 +37,7 @@ export default async function ModulePage({
       />
       <EmptyState
         title="The next chapter is taking shape."
-        description="This is a planned module. Phase 1 establishes the interface; this feature is not available yet."
+        description="This is a planned module. Phase 2 implements check-ins and history; this feature is not available yet."
       >
         <div className="planned-features">
           <h3>WHAT’S PLANNED</h3>
@@ -48,7 +52,8 @@ export default async function ModulePage({
         </div>
         <p className="privacy-note">
           <LockKeyhole size={15} />
-          No information is collected or sent to an AI service.
+          This module collects no information and sends nothing to an AI
+          service.
         </p>
       </EmptyState>
     </PageLayout>

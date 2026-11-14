@@ -14,3 +14,7 @@ coverage/
 *.key
 .aws/
 .ssh/
+test-results/
+playwright-report/
+supabase/.temp/
+supabase/.branches/

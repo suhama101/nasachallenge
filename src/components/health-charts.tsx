@@ -1,220 +1,350 @@
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 import {
   Area,
   AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import { Heart, Moon, ChevronDown } from "lucide-react";
-import { trends, mission } from "@/lib/mock-data";
-export function HealthCharts() {
-  const [days, setDays] = useState(7);
-  const data = trends.slice(-days);
-  const heartAverage = (
-    data.reduce((s, p) => s + p.heartRate, 0) / data.length
-  ).toFixed(1);
-  const sleepAverage = (
-    data.reduce((s, p) => s + p.sleep, 0) / data.length
-  ).toFixed(1);
+import {
+  Heart,
+  Moon,
+  Thermometer,
+  Droplets,
+  Activity,
+  ChevronDown,
+} from "lucide-react";
+import type { HealthCheckIn } from "@/lib/health/validation";
+import {
+  average,
+  chartRecords,
+  filterRecords,
+  measurement,
+  sourceLabel,
+} from "@/lib/health/selectors";
+import { displayDate, displayTimestamp, shiftDate } from "@/lib/health/dates";
+
+type ChartKind =
+  "heartRate" | "sleep" | "temperature" | "spo2" | "bloodPressure";
+const chartConfig = {
+  heartRate: {
+    title: "Resting heart rate",
+    unit: "bpm",
+    color: "#5adbd3",
+    icon: Heart,
+  },
+  sleep: {
+    title: "Sleep duration",
+    unit: "hours",
+    color: "#aba0ef",
+    icon: Moon,
+  },
+  temperature: {
+    title: "Body temperature",
+    unit: "°C",
+    color: "#e5bd8c",
+    icon: Thermometer,
+  },
+  spo2: {
+    title: "Oxygen saturation",
+    unit: "% SpO₂",
+    color: "#8bbcff",
+    icon: Droplets,
+  },
+  bloodPressure: {
+    title: "Blood pressure",
+    unit: "mmHg",
+    color: "#5adbd3",
+    icon: Activity,
+  },
+};
+const tooltipStyle = {
+  background: "#121e30",
+  border: "1px solid #42536b",
+  borderRadius: 8,
+  color: "#eef4ff",
+};
+export function TrendChart({
+  records,
+  kind,
+}: {
+  records: HealthCheckIn[];
+  kind: ChartKind;
+}) {
+  const id = useId();
+  const config = chartConfig[kind];
+  const Icon = config.icon;
+  const data = chartRecords(records).map((row) => ({
+    ...row,
+    label: displayDate(row.missionDate),
+  }));
+  const hasValues = data.some((row) =>
+    kind === "bloodPressure"
+      ? row.systolic !== null || row.diastolic !== null
+      : row[kind] !== null,
+  );
+  const mean = kind === "bloodPressure" ? null : average(records, kind);
+  const keys = kind === "bloodPressure" ? ["systolic", "diastolic"] : [kind];
+  const name = (key: string) =>
+    key === "systolic"
+      ? "Systolic"
+      : key === "diastolic"
+        ? "Diastolic"
+        : config.title;
+  const axes = (
+    <>
+      <CartesianGrid vertical={false} stroke="#263243" strokeDasharray="3 5" />
+      <XAxis
+        dataKey="label"
+        tickLine={false}
+        axisLine={false}
+        tick={{ fill: "#a7b6ca", fontSize: 10 }}
+        minTickGap={25}
+        dy={8}
+      />
+      <YAxis
+        domain={
+          kind === "spo2"
+            ? [0, 100]
+            : kind === "sleep"
+              ? [0, 24]
+              : ["auto", "auto"]
+        }
+        axisLine={false}
+        tickLine={false}
+        tick={{ fill: "#a7b6ca", fontSize: 10 }}
+        width={43}
+      />
+      <Tooltip
+        contentStyle={tooltipStyle}
+        formatter={(value, key) => [
+          `${value} ${config.unit}`,
+          name(String(key)),
+        ]}
+        labelFormatter={(_, payload) => {
+          const row = payload[0]?.payload as HealthCheckIn | undefined;
+          return row
+            ? `${displayDate(row.missionDate)} · ${displayTimestamp(row.recordedAt)} · ${sourceLabel(row.source)}`
+            : "";
+        }}
+      />
+    </>
+  );
   return (
-    <section aria-labelledby="trends-title">
-      <div className="section-heading">
-        <div>
-          <h2 id="trends-title">Your health, over time</h2>
-          <p>A little perspective on your daily measurements.</p>
-        </div>
-        <div className="select-wrap">
-          <label htmlFor="trend-range" className="sr-only">
-            Chart date range
-          </label>
-          <select
-            id="trend-range"
-            value={days}
-            onChange={(e) => setDays(Number(e.target.value))}
-          >
-            <option value={7}>Last 7 days</option>
-            <option value={14}>Last 14 days</option>
-          </select>
-          <ChevronDown size={14} />
-        </div>
+    <article className="panel chart-panel">
+      <div className="chart-heading">
+        <h3>
+          <Icon size={16} style={{ color: config.color }} />
+          {config.title}
+        </h3>
+        <span>{config.unit}</span>
       </div>
-      <div className="charts-grid">
-        <article className="panel chart-panel">
-          <div className="chart-heading">
-            <h3>
-              <Heart size={16} className="text-cyan-300" />
-              Resting heart rate
-            </h3>
-            <span>7:30 UTC daily</span>
-          </div>
-          <p className="chart-summary">
-            {heartAverage}
-            <span>bpm average</span>
-            <small>Selected period</small>
-          </p>
-          <div
-            className="chart-canvas"
-            role="img"
-            aria-label={`Resting heart rate over ${days} days. Average ${heartAverage} beats per minute. Exact values in the table below.`}
-          >
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <AreaChart
-                data={data}
-                margin={{ top: 10, right: 8, left: -25, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="heart-fill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#53d6ce" stopOpacity={0.23} />
-                    <stop offset="100%" stopColor="#53d6ce" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  vertical={false}
-                  stroke="#263243"
-                  strokeDasharray="3 5"
-                />
-                <XAxis
-                  dataKey="label"
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: "#98a7bb", fontSize: 11 }}
-                  dy={9}
-                  minTickGap={20}
-                />
-                <YAxis
-                  domain={[55, 75]}
-                  ticks={[55, 60, 65, 70, 75]}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#98a7bb", fontSize: 11 }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "#121e30",
-                    border: "1px solid #42536b",
-                    borderRadius: 8,
-                    color: "#eef4ff",
-                  }}
-                  formatter={(v) => [`${v} bpm`, "Resting heart rate"]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="heartRate"
-                  stroke="#5adbd3"
-                  strokeWidth={2.5}
-                  fill="url(#heart-fill)"
-                  dot={{ r: 3, fill: "#111e2c", strokeWidth: 2 }}
-                  isAnimationActive={false}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="chart-source">
-            {mission.source} · {data[0].label}–14, 2026 · bpm
-          </p>
-        </article>
-        <article className="panel chart-panel">
-          <div className="chart-heading">
-            <h3>
-              <Moon size={16} className="text-violet-300" />
-              Sleep duration
-            </h3>
-            <span>Logged 07:30 UTC daily</span>
-          </div>
-          <p className="chart-summary">
-            {sleepAverage}
-            <span>hours average</span>
-            <small>Selected period</small>
-          </p>
-          <div
-            className="chart-canvas"
-            role="img"
-            aria-label={`Sleep over ${days} days. Average ${sleepAverage} hours. Exact values in the table below.`}
-          >
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+      <p className="chart-summary">
+        {kind === "bloodPressure" ? "SYS / DIA" : (mean ?? "—")}
+        <span>
+          {kind === "bloodPressure" ? "two series" : `${config.unit} average`}
+        </span>
+        <small>Selected records · missing values excluded</small>
+      </p>
+      {hasValues ? (
+        <div
+          className="chart-canvas"
+          role="img"
+          aria-label={`${config.title}, ${records.length} check-ins by selected mission date. ${mean ? `Mean ${mean} ${config.unit}.` : ""} Missing values are gaps. Exact values are in the accessible data table below.`}
+        >
+          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            {kind === "sleep" ? (
               <BarChart
                 data={data}
-                margin={{ top: 10, right: 8, left: -25, bottom: 0 }}
+                margin={{ top: 10, right: 8, left: 0, bottom: 0 }}
               >
-                <CartesianGrid
-                  vertical={false}
-                  stroke="#263243"
-                  strokeDasharray="3 5"
-                />
-                <XAxis
-                  dataKey="label"
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: "#98a7bb", fontSize: 11 }}
-                  dy={9}
-                  minTickGap={20}
-                />
-                <YAxis
-                  domain={[0, 10]}
-                  ticks={[0, 2, 4, 6, 8, 10]}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#98a7bb", fontSize: 11 }}
-                />
-                <Tooltip
-                  cursor={{ fill: "#27314a" }}
-                  contentStyle={{
-                    background: "#121e30",
-                    border: "1px solid #42536b",
-                    borderRadius: 8,
-                    color: "#eef4ff",
-                  }}
-                  formatter={(v) => [`${v} hours`, "Sleep duration"]}
-                />
+                {axes}
                 <Bar
                   dataKey="sleep"
-                  fill="#9d94e8"
+                  fill={config.color}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={28}
                   isAnimationActive={false}
                 />
               </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="chart-source">
-            {mission.source} · {data[0].label}–14, 2026 · hours
-          </p>
-        </article>
-      </div>
-      <details className="data-details">
-        <summary>
-          View chart data as a table <span>Accessible data view</span>
-        </summary>
+            ) : kind === "bloodPressure" ? (
+              <LineChart
+                data={data}
+                margin={{ top: 10, right: 8, left: 0, bottom: 0 }}
+              >
+                {axes}
+                <Line
+                  dataKey="systolic"
+                  stroke="#5adbd3"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  connectNulls={false}
+                  isAnimationActive={false}
+                />
+                <Line
+                  dataKey="diastolic"
+                  stroke="#aba0ef"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  connectNulls={false}
+                  isAnimationActive={false}
+                />
+              </LineChart>
+            ) : (
+              <AreaChart
+                data={data}
+                margin={{ top: 10, right: 8, left: 0, bottom: 0 }}
+              >
+                {axes}
+                <defs>
+                  <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+                    <stop
+                      offset="0%"
+                      stopColor={config.color}
+                      stopOpacity={0.23}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor={config.color}
+                      stopOpacity={0}
+                    />
+                  </linearGradient>
+                </defs>
+                <Area
+                  type="linear"
+                  dataKey={kind}
+                  stroke={config.color}
+                  strokeWidth={2.5}
+                  fill={`url(#${id})`}
+                  dot={{ r: 3, strokeWidth: 2 }}
+                  connectNulls={false}
+                  isAnimationActive={false}
+                />
+              </AreaChart>
+            )}
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="chart-empty">
+          <p>No {config.title.toLowerCase()} values in this date range.</p>
+        </div>
+      )}
+      <p className="chart-source">
+        Synthetic and user-entered demo records · mission dates (UTC)
+        {kind === "bloodPressure" && " · Cyan: systolic / Violet: diastolic"}
+      </p>
+      <details className="data-details chart-table">
+        <summary>View {config.title.toLowerCase()} data table</summary>
         <div className="table-scroll">
           <table>
             <caption>
-              Synthetic measurements · logged at 07:30 UTC each day
+              {config.title} · exact stored values; each row is a separate
+              check-in
             </caption>
             <thead>
               <tr>
-                <th scope="col">Date (UTC)</th>
-                <th scope="col">Resting heart rate (bpm)</th>
-                <th scope="col">Sleep duration (hours)</th>
+                <th scope="col">Mission date (UTC)</th>
+                <th scope="col">Recorded at (UTC)</th>
+                {keys.map((key) => (
+                  <th key={key} scope="col">
+                    {name(key)} ({config.unit})
+                  </th>
+                ))}
+                <th scope="col">Source</th>
               </tr>
             </thead>
             <tbody>
-              {data.map((p) => (
-                <tr key={p.date}>
-                  <th scope="row">{p.date}</th>
-                  <td>{p.heartRate}</td>
-                  <td>{p.sleep.toFixed(1)}</td>
+              {data.map((row) => (
+                <tr key={row.id}>
+                  <th scope="row">{displayDate(row.missionDate)}</th>
+                  <td>{displayTimestamp(row.recordedAt)}</td>
+                  {keys.map((key) => (
+                    <td key={key}>
+                      {measurement(
+                        row[
+                          key as
+                            | "heartRate"
+                            | "systolic"
+                            | "diastolic"
+                            | "sleep"
+                            | "temperature"
+                            | "spo2"
+                        ],
+                        config.unit,
+                      )}
+                    </td>
+                  ))}
+                  <td>{sourceLabel(row.source)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </details>
+    </article>
+  );
+}
+export function HealthCharts({
+  records,
+  today,
+  full = false,
+}: {
+  records: HealthCheckIn[];
+  today: string;
+  full?: boolean;
+}) {
+  const [days, setDays] = useState(14);
+  const selected = full
+    ? records
+    : filterRecords(records, shiftDate(today, 1 - days), today);
+  return (
+    <section aria-labelledby="trends-title">
+      <div className="section-heading">
+        <div>
+          <h2 id="trends-title">Your health, over time</h2>
+          <p>
+            {full
+              ? "Trends follow the selected mission-date filter."
+              : "Mission dates through today (UTC). Each point is a check-in."}{" "}
+            Missing values are never filled in.
+          </p>
+        </div>
+        {!full && (
+          <div className="select-wrap">
+            <label htmlFor="trend-range" className="sr-only">
+              Chart date range
+            </label>
+            <select
+              id="trend-range"
+              value={days}
+              onChange={(e) => setDays(Number(e.target.value))}
+            >
+              <option value={7}>Last 7 days</option>
+              <option value={14}>Last 14 days</option>
+              <option value={30}>Last 30 days</option>
+            </select>
+            <ChevronDown size={14} />
+          </div>
+        )}
+      </div>
+      <div className="charts-grid">
+        <TrendChart kind="heartRate" records={selected} />
+        <TrendChart kind="sleep" records={selected} />
+        {full && (
+          <>
+            <TrendChart kind="temperature" records={selected} />
+            <TrendChart kind="spo2" records={selected} />
+            <TrendChart kind="bloodPressure" records={selected} />
+          </>
+        )}
+      </div>
     </section>
   );
 }

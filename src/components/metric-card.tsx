@@ -1,39 +1,79 @@
-import {
-  Heart,
-  Moon,
-  Droplets,
-  Thermometer,
-  type LucideIcon,
-} from "lucide-react";
-import { mission, type Metric } from "@/lib/mock-data";
-const icons: Record<string, LucideIcon> = {
-  heart: Heart,
-  sleep: Moon,
-  oxygen: Droplets,
-  temperature: Thermometer,
-};
-export function MetricCard({ metric }: { metric: Metric }) {
-  const Icon = icons[metric.id];
+import { Heart, Moon, Droplets, Thermometer } from "lucide-react";
+import type { HealthCheckIn } from "@/lib/health/validation";
+import { displayTimestamp } from "@/lib/health/dates";
+import { sourceLabel } from "@/lib/health/selectors";
+const metrics = [
+  {
+    key: "heartRate",
+    title: "Resting heart rate",
+    unit: "bpm",
+    tone: "cyan",
+    icon: Heart,
+  },
+  {
+    key: "sleep",
+    title: "Sleep duration",
+    unit: "hours",
+    tone: "violet",
+    icon: Moon,
+  },
+  {
+    key: "spo2",
+    title: "Oxygen saturation",
+    unit: "% SpO₂",
+    tone: "blue",
+    icon: Droplets,
+  },
+  {
+    key: "temperature",
+    title: "Body temperature",
+    unit: "°C",
+    tone: "amber",
+    icon: Thermometer,
+  },
+] as const;
+export function LatestMeasurements({
+  record,
+}: {
+  record: HealthCheckIn | null;
+}) {
   return (
-    <article className={`panel metric-card tone-${metric.color}`}>
-      <div className="metric-top">
-        <span className="metric-icon">
-          <Icon size={18} />
-        </span>
-        <span className="mini-label">LATEST RECORD</span>
-      </div>
-      <h3>{metric.label}</h3>
-      <p className="metric-value">
-        {metric.value}
-        <span>{metric.unit}</span>
-      </p>
-      <p className="metric-note">{metric.note}</p>
-      <div className="metric-source">
-        <time dateTime={mission.recordedAt}>
-          {mission.displayTime} · 14 Nov
-        </time>
-        <span>Synthetic demo</span>
-      </div>
-    </article>
+    <section
+      className="metrics-grid"
+      aria-label="Measurements from the most recent recorded check-in"
+    >
+      {metrics.map(({ key, title, unit, tone, icon: Icon }) => (
+        <article key={key} className={`panel metric-card tone-${tone}`}>
+          <div className="metric-top">
+            <span className="metric-icon">
+              <Icon size={18} />
+            </span>
+            <span className="mini-label">LATEST CHECK-IN</span>
+          </div>
+          <h3>{title}</h3>
+          <p className="metric-value">
+            {record?.[key] ?? "—"}
+            <span>{unit}</span>
+          </p>
+          <p className="metric-note">
+            {record?.[key] == null
+              ? "Not recorded"
+              : "User-entered or synthetic; not device telemetry"}
+          </p>
+          <div className="metric-source">
+            {record ? (
+              <>
+                <time dateTime={record.recordedAt}>
+                  {displayTimestamp(record.recordedAt)}
+                </time>
+                <span>{sourceLabel(record.source)}</span>
+              </>
+            ) : (
+              <span>No saved check-ins</span>
+            )}
+          </div>
+        </article>
+      ))}
+    </section>
   );
 }
