@@ -157,6 +157,13 @@ export function resolveFollowUp(
 ): string {
   const text = normalizeQuestion(question);
   if (
+    messages.at(-1)?.answer?.sections[0]?.id === "faq-clarify" &&
+    /^(?:yes|yep|yeah|yes chatting|i meant chatting|chatting)[.!?]*$/.test(
+      text.trim(),
+    )
+  )
+    return "Can we chat?";
+  if (
     relevantTopicIds(text).length ||
     !/^(and\b|why\b|what about\b|how about\b|tell me more\b|explain (?:it|that)\b|what (?:does|should)|has it\b|did it\b|is (?:it|that)\b|over\b)/.test(
       text,

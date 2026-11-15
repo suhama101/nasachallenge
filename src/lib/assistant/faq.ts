@@ -5,6 +5,8 @@ const spellings: Record<string, string> = {
   r: "are",
   u: "you",
   chating: "chatting",
+  chattng: "chatting",
+  chattingg: "chatting",
   livechat: "live chatting",
   conected: "connected",
   connnected: "connected",
@@ -16,6 +18,7 @@ const spellings: Record<string, string> = {
   questons: "questions",
   qustions: "questions",
   capabilites: "capabilities",
+  capabilties: "capabilities",
   artifical: "artificial",
   inteligence: "intelligence",
 };
@@ -38,7 +41,15 @@ export function assistantFaq(question: string, liveAvailable?: boolean) {
   let answer: string;
   let sources: string[] = [];
   if (
-    /^(?:(?:are we|are you|is this|is it) (?:doing |having )?(?:a )?(?:live |real time )?(?:chat|chatting|conversation)|(?:is (?:live ai|groq) (?:available|enabled)|are you (?:live|online)|can we (?:chat|talk)(?: live)?))$/.test(
+    /^(?:(?:are you|are we|is this) (?:doing |having )?(?:live )?chanting|can (?:you|we) (?:do )?chanting|(?:what about )?chanting)(?: (?:now|today|right now))?$/.test(
+      text,
+    )
+  ) {
+    id = "clarify";
+    answer =
+      "Did you mean chatting? I can answer supported space-health questions using curated responses. If you meant chanting, please clarify what you want to know. This reply is local, not live generative AI.";
+  } else if (
+    /^(?:(?:are we|are you|is this|is it) (?:doing |having )?(?:a )?(?:live |real time )?(?:chat|chatting|conversation)|(?:is (?:live ai|groq) (?:available|enabled)|are you (?:live|online)|can (?:we|you) (?:chat|talk)(?: with (?:me|you))?(?: live)?))$/.test(
       text,
     )
   ) {
@@ -52,7 +63,7 @@ export function assistantFaq(question: string, liveAvailable?: boolean) {
     id = "identity";
     answer = `I am MissionPulse's educational assistant, not a human or an official NASA medical assistant. ${mode}`;
   } else if (
-    /^(?:what (?:can you do|do you do|are your capabilities)|how can you help(?: me)?|can you (?:help(?: me)?|answer (?:my )?questions)|hi|hello|hey)$/.test(
+    /^(?:what (?:can you (?:do|help(?: me)? with)|do you do|are your capabilities|can i ask(?: you)?|(?:questions|topics) can you (?:answer|help with))|how can you help(?: me)?|how are you(?: doing)?|can you (?:help(?: me)?(?: out)?|answer (?:my )?questions)|hi|hello|hey)$/.test(
       text,
     )
   ) {
@@ -77,4 +88,20 @@ export function assistantFaq(question: string, liveAvailable?: boolean) {
       "I do not have access to your personal cloud health records. I can review only the selected fictional demo measurements when you explicitly check 'Use selected demo measurements for this message'. Consent is required again for each message. I have not read any measurements for this FAQ reply. Raw measurements, identities, notes, symptoms, and previous conversations are not sent to Groq.";
   } else return undefined;
   return { id: `faq-${id}`, text: answer, sources };
+}
+
+// A small scope guard, not a medical classifier or emergency assessment.
+// These subjects/interventions have no approved answers in this collection;
+// do not turn a shared word like "sleep" into evidence for treating a condition.
+export function unsupportedMedicalTopic(question: string) {
+  const text = normalizeQuestion(question);
+  return (
+    /\b(cancer|diabetes|migraine\w*|arthritis|rash|toothache|pregnan\w*|melanoma|sleep apn(?:ea|oea)|cure\w*|remed(?:y|ies)|antibiotics?|surgery)\b/.test(
+      text,
+    ) ||
+    (/\btreat(?:ment|ing)?\b/.test(text) &&
+      !/\b(missing|records?|data|measurements?)\b/.test(text)) ||
+    (/\bchanting\b/.test(text) &&
+      /\b(health|sleep|stress|fatigue|symptoms?)\b/.test(text))
+  );
 }

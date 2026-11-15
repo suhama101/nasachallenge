@@ -71,7 +71,7 @@ test("direct answers, relevant citations, local follow-ups and spelling variatio
     "reduced loading",
   );
   answer = await send(page, "Explain quasar algebra");
-  await expect(answer).toContainText("No relevant curated evidence");
+  await expect(answer).toContainText("Outside my supported topics");
   await expect(answer.locator(".chat-source")).toHaveCount(0);
   await page.reload();
   await expect(page.locator(".chat-assistant")).toHaveCount(7);

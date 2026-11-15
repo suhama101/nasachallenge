@@ -1,5 +1,5 @@
 import { knowledgeEntries } from "../knowledge/content";
-import { assistantFaq } from "./faq";
+import { assistantFaq, unsupportedMedicalTopic } from "./faq";
 import {
   focusedEducation,
   normalizeQuestion,
@@ -123,7 +123,7 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
       nextStep:
         concern === "urgent"
           ? emergencyMessage
-          : "Ask an educational question or discuss clinical decisions with your designated crew medical officer.",
+          : "Discuss clinical decisions with your designated crew medical officer. I can explain general space-health research about sleep, fatigue, heart rate, or exercise.",
     };
   }
   if (
@@ -154,16 +154,22 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
         {
           id: faq.id,
           kind: "notice",
-          title: "About this assistant",
+          title:
+            faq.id === "faq-clarify"
+              ? "Could you clarify?"
+              : "About this assistant",
           text: faq.text,
           sourceIds: faq.sources,
         },
       ],
       sources: faq.sources.map(citationFor),
       nextStep:
-        "Ask a supported space-health question, or choose demo measurements and explicitly opt in for a record question.",
+        faq.id === "faq-clarify"
+          ? "Please confirm whether you meant chatting, or rephrase your question."
+          : "Ask a supported space-health question, or choose demo measurements and explicitly opt in for a record question.",
     };
-  const retrieved = focusedEducation(input.question);
+  const outsideMedicalScope = unsupportedMedicalTopic(input.question);
+  const retrieved = outsideMedicalScope ? [] : focusedEducation(input.question);
   base.sources = retrieved.map((item) => citationFor(item.entry.id));
   const education: AnswerSection[] = retrieved.map(
     ({ entry, answer, context }) => ({
@@ -175,16 +181,17 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
     }),
   );
   if (
-    !education.length &&
-    !requestedIndicators(input.question).length &&
-    !/missing|completeness/.test(input.question)
+    outsideMedicalScope ||
+    (!education.length &&
+      !requestedIndicators(input.question).length &&
+      !/missing|completeness/.test(input.question))
   ) {
     base.category = "unsupported";
     base.sections.push({
       id: "no-evidence",
       kind: "notice",
-      title: "No relevant curated evidence",
-      text: "I do not have a supported NASA/CSA knowledge entry for this question. Name a space-health topic or a supported demo measurement. For a follow-up, name the topic if the earlier context is unclear; I will not invent an answer or source.",
+      title: "Outside my supported topics",
+      text: "I cannot answer that reliably from this curated space-health collection. I cannot assess a medical condition or recommend treatment, and I will not invent an explanation or citation. I can help with general sleep, fatigue, heart-rate, exercise, mood, or missing-measurement questions. If you meant one of those, please rephrase; discuss medical concerns with a qualified professional through established crew medical procedures.",
       sourceIds: [],
     });
     base.nextStep =
@@ -354,8 +361,8 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
     base.sections.push({
       id: "no-evidence",
       kind: "notice",
-      title: "No relevant curated evidence",
-      text: "I do not have a supported NASA/CSA knowledge entry for this question. Try a listed space-health topic or a supported measurement question. I will not invent a source or answer outside this curated collection.",
+      title: "Outside my supported topics",
+      text: "I cannot answer that reliably from this curated space-health collection. Try a general question about sleep, fatigue, heart rate, exercise, mood, or missing measurements. I cannot assess medical conditions or recommend treatment, and will not invent an answer or citation.",
       sourceIds: [],
     });
   }
