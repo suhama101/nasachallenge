@@ -1,4 +1,5 @@
 import { knowledgeEntries } from "../knowledge/content";
+import { assistantFaq } from "./faq";
 import {
   focusedEducation,
   normalizeQuestion,
@@ -39,6 +40,7 @@ export type LocalQuestion = {
   minBaseline: number;
   useRecords: boolean;
   urgentReported?: boolean;
+  liveAvailable?: boolean;
 };
 export function questionCategory(
   question: string,
@@ -72,7 +74,8 @@ export function citationFor(id: string): Citation {
 }
 export function answerLocally(input: LocalQuestion): AssistantAnswer {
   input = { ...input, question: normalizeQuestion(input.question) };
-  const category = questionCategory(input.question);
+  const faq = assistantFaq(input.question, input.liveAvailable);
+  const category = faq ? "education" : questionCategory(input.question);
   // No filtering, urgent-flag inspection, or calculations without consent.
   const records =
     input.useRecords && category !== "education"
@@ -80,7 +83,7 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
       : [];
   const concern = safetyConcern(
     input.question,
-    (input.useRecords && input.urgentReported) ||
+    (input.useRecords && !faq && input.urgentReported) ||
       records.some((record) => record.urgentSymptomReported),
   );
   const base: AssistantAnswer = {
@@ -144,6 +147,22 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
         "Choose the intended demo dataset and ask a supported question about its measurements.",
     };
   }
+  if (faq)
+    return {
+      ...base,
+      sections: [
+        {
+          id: faq.id,
+          kind: "notice",
+          title: "About this assistant",
+          text: faq.text,
+          sourceIds: faq.sources,
+        },
+      ],
+      sources: faq.sources.map(citationFor),
+      nextStep:
+        "Ask a supported space-health question, or choose demo measurements and explicitly opt in for a record question.",
+    };
   const retrieved = focusedEducation(input.question);
   base.sources = retrieved.map((item) => citationFor(item.entry.id));
   const education: AnswerSection[] = retrieved.map(

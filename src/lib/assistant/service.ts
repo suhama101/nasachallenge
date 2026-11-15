@@ -1,6 +1,7 @@
 import { answerLocally } from "./answers";
 import { expandHealthShare } from "./context";
 import { providerTopicQuestion } from "./intent";
+import { assistantFaq } from "./faq";
 import {
   modelPlanSchema,
   type AssistantRequest,
@@ -18,7 +19,10 @@ export async function respond(
   input: AssistantRequest,
   deps: ProviderDependencies,
 ): Promise<AssistantAnswer> {
-  const health = input.healthConsent ? input.health : undefined;
+  const health =
+    input.healthConsent && !assistantFaq(input.question)
+      ? input.health
+      : undefined;
   const base = answerLocally({
     question: input.question,
     dataset: health?.dataset ?? "saved",
@@ -27,10 +31,12 @@ export async function respond(
     minBaseline: health?.minBaseline ?? 5,
     useRecords: !!health,
     urgentReported: health?.urgentReported,
+    liveAvailable: deps.configured,
   });
   // Safety and exact arithmetic never depend on a provider, budget or network.
   if (
     base.category === "safety" ||
+    base.sections[0]?.id.startsWith("faq-") ||
     base.category === "records" ||
     !input.useLive ||
     base.category === "unsupported"

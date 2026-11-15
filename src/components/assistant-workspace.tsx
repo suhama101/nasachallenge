@@ -65,7 +65,7 @@ function Conversation({ dataset }: { dataset: DatasetKey }) {
   const [question, setQuestion] = useState("");
   const [consent, setConsent] = useState(false);
   const [live, setLive] = useState(false);
-  const [available, setAvailable] = useState(false);
+  const [available, setAvailable] = useState<boolean>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [clearOpen, setClearOpen] = useState(false);
@@ -136,6 +136,7 @@ function Conversation({ dataset }: { dataset: DatasetKey }) {
       asOf: options.asOf,
       minBaseline: options.minBaseline ?? 5,
       useRecords: approved,
+      liveAvailable: available,
     });
     const user: ChatMessage = {
       id: crypto.randomUUID(),
@@ -150,6 +151,7 @@ function Conversation({ dataset }: { dataset: DatasetKey }) {
     if (!mounted.current) return;
     if (
       live &&
+      !local.sections[0]?.id.startsWith("faq-") &&
       local.category !== "safety" &&
       local.category !== "records" &&
       local.category !== "unsupported" &&
