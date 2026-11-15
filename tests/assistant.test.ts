@@ -254,7 +254,7 @@ describe("provider grounding, availability and safety", () => {
     const answer = await respond(request(), deps);
     expect(answer.mode).toBe("groq");
     expect(answer.sections).toHaveLength(1);
-    expect(answer.sections[0].text).toContain("NASA researches");
+    expect(answer.sections[0].text).toContain("circulation");
     expect(deps.complete).toHaveBeenCalledOnce();
     expect(answerSchema.safeParse(answer).success).toBe(true);
   });
@@ -349,17 +349,27 @@ describe("provider grounding, availability and safety", () => {
     expect(deps.budget).not.toHaveBeenCalled();
     expect(deps.complete).not.toHaveBeenCalled();
   });
-  it("retains urgent escalation without consent, provider or communications", () => {
+  it("uses an urgent saved flag only with consent; explicit urgent messages never need consent", () => {
     const urgent = rows().map((row) => ({
       ...row,
       urgentSymptomReported: true,
     }));
-    const answer = local({ records: urgent, useRecords: false });
+    expect(local({ records: urgent, useRecords: false }).category).not.toBe(
+      "safety",
+    );
+    const answer = local({ records: urgent, useRecords: true });
     expect(answer.category).toBe("safety");
     expect(answer.sections[0].text).toContain(
       "designated crew medical officer",
     );
     expect(answer.sections[0].text).toContain("communication");
+    expect(
+      local({
+        records: urgent,
+        useRecords: false,
+        question: "I have chest pain",
+      }).category,
+    ).toBe("safety");
   });
 });
 describe("HTTP validation", () => {

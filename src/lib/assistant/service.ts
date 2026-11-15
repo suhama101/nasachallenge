@@ -1,5 +1,6 @@
 import { answerLocally } from "./answers";
 import { expandHealthShare } from "./context";
+import { providerTopicQuestion } from "./intent";
 import {
   modelPlanSchema,
   type AssistantRequest,
@@ -48,25 +49,25 @@ export async function respond(
   }
   try {
     const raw = await deps.complete(
-      input.question,
+      providerTopicQuestion(input.question),
       candidates.map((section) => ({ id: section.id, text: section.text })),
     );
     const plan = modelPlanSchema.safeParse(JSON.parse(raw));
     if (
       !plan.success ||
       new Set(plan.data.statementIds).size !== plan.data.statementIds.length ||
+      !plan.data.statementIds.includes(candidates[0].id) ||
       plan.data.statementIds.some(
         (id) => !candidates.some((section) => section.id === id),
       )
     )
       return { ...base, reason: "malformed" };
-    const selected = plan.data.statementIds.map((id) =>
-      candidates.find((section) => section.id === id)!,
+    const selected = candidates.filter((section) =>
+      plan.data.statementIds.includes(section.id),
     );
-    const sections = [
-      ...base.sections.filter((section) => section.kind !== "education"),
-      ...selected,
-    ];
+    const sections = base.sections.filter(
+      (section) => section.kind !== "education" || selected.includes(section),
+    );
     return {
       ...base,
       mode: "groq",

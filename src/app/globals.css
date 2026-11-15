@@ -3514,6 +3514,18 @@ footer p {
 .answer-section p {
   font-size: 12px;
 }
+.assistant-chat .answer-section p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.assistant-chat .answer-direct > p {
+  color: #d1dce6;
+}
+.assistant-chat .chat-source,
+.assistant-chat .assistant-disclosure,
+.assistant-chat .chat-message details {
+  font-size: 12px;
+}
 .answer-safety {
   border-left: 2px solid #e6b968;
   padding-left: 14px;

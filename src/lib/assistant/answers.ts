@@ -1,5 +1,9 @@
 import { knowledgeEntries } from "../knowledge/content";
-import { retrieveKnowledge } from "../knowledge/retrieval";
+import {
+  focusedEducation,
+  normalizeQuestion,
+  recordingQuestion,
+} from "./intent";
 import {
   analyzeHealthRecords,
   formatIndicatorValue,
@@ -39,12 +43,8 @@ export type LocalQuestion = {
 export function questionCategory(
   question: string,
 ): AssistantAnswer["category"] {
-  if (
-    /what (?:information|details|context).*record|what should.*record/i.test(
-      question,
-    )
-  )
-    return "education";
+  question = normalizeQuestion(question).replace(/\btell me\b/g, "show");
+  if (recordingQuestion(question)) return "education";
   const personal =
     /\b(my|mine|our|i|me)\b/i.test(question) ||
     /missing.*(?:measurement|check|record)|(?:measurement|check|record).*missing/i.test(
@@ -71,14 +71,20 @@ export function citationFor(id: string): Citation {
   };
 }
 export function answerLocally(input: LocalQuestion): AssistantAnswer {
-  const records = scopedRecords(input.records, input.dataset);
+  input = { ...input, question: normalizeQuestion(input.question) };
+  const category = questionCategory(input.question);
+  // No filtering, urgent-flag inspection, or calculations without consent.
+  const records =
+    input.useRecords && category !== "education"
+      ? scopedRecords(input.records, input.dataset)
+      : [];
   const concern = safetyConcern(
     input.question,
-    input.urgentReported ||
+    (input.useRecords && input.urgentReported) ||
       records.some((record) => record.urgentSymptomReported),
   );
   const base: AssistantAnswer = {
-    category: questionCategory(input.question),
+    category,
     mode: "local",
     reason: "local",
     sections: [],
@@ -138,15 +144,34 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
         "Choose the intended demo dataset and ask a supported question about its measurements.",
     };
   }
-  const retrieved = retrieveKnowledge(input.question);
+  const retrieved = focusedEducation(input.question);
   base.sources = retrieved.map((item) => citationFor(item.entry.id));
-  const education: AnswerSection[] = retrieved.map(({ entry }) => ({
-    id: `knowledge-${entry.id}`,
-    kind: "education",
-    title: `Published research · ${entry.title}`,
-    text: `${entry.summary}\n\nMissionPulse monitoring context: ${entry.monitoring}\n\nLimitation: ${entry.limitations}`,
-    sourceIds: [entry.id],
-  }));
+  const education: AnswerSection[] = retrieved.map(
+    ({ entry, answer, context }) => ({
+      id: `knowledge-${entry.id}`,
+      kind: "education",
+      title: `About ${entry.title.toLowerCase()}`,
+      text: `${answer}${context === answer ? "" : `\n\nResearch context: ${context}`}`,
+      sourceIds: [entry.id],
+    }),
+  );
+  if (
+    !education.length &&
+    !requestedIndicators(input.question).length &&
+    !/missing|completeness/.test(input.question)
+  ) {
+    base.category = "unsupported";
+    base.sections.push({
+      id: "no-evidence",
+      kind: "notice",
+      title: "No relevant curated evidence",
+      text: "I do not have a supported NASA/CSA knowledge entry for this question. Name a space-health topic or a supported demo measurement. For a follow-up, name the topic if the earlier context is unclear; I will not invent an answer or source.",
+      sourceIds: [],
+    });
+    base.nextStep =
+      "Try sleep, fatigue, heart rate, blood pressure, dizziness, hydration, exercise, mood, or missing measurements.";
+    return base;
+  }
   if (base.category !== "education") {
     if (!input.useRecords) {
       base.sections.push({
@@ -296,7 +321,15 @@ export function answerLocally(input: LocalQuestion): AssistantAnswer {
       );
     }
   }
-  base.sections.push(...education);
+  if (base.category === "explanation") base.sections.unshift(...education);
+  else base.sections.push(...education);
+  base.nextStep =
+    base.category === "education" &&
+    !/dizz|fatigue|tired|stress|symptom/.test(input.question)
+      ? "Open the linked source for context, or ask about a specific demo measurement."
+      : base.category === "records"
+        ? "Review the dates and recording conditions in Health History; missing values are not zero."
+        : "For symptoms or persistent concerns, use established crew medical procedures. Demo observations cannot establish a cause.";
   if (!base.sections.length) {
     base.category = "unsupported";
     base.sections.push({

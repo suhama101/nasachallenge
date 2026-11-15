@@ -6,6 +6,7 @@ import { Send, ShieldCheck, Trash2, ExternalLink } from "lucide-react";
 import { Button } from "./ui/button";
 import { useInsights } from "./insights-provider";
 import { answerLocally, questionCategory } from "@/lib/assistant/answers";
+import { resolveFollowUp } from "@/lib/assistant/intent";
 import { makeHealthShare } from "@/lib/assistant/context";
 import {
   answerSchema,
@@ -126,9 +127,10 @@ function Conversation({ dataset }: { dataset: DatasetKey }) {
     setError("");
     setQuestion("");
     const approved = consent;
+    const resolvedQuestion = resolveFollowUp(text, messages);
     setConsent(false);
     const local = answerLocally({
-      question: text,
+      question: resolvedQuestion,
       dataset,
       records: selectedRecords,
       asOf: options.asOf,
@@ -151,7 +153,7 @@ function Conversation({ dataset }: { dataset: DatasetKey }) {
       local.category !== "safety" &&
       local.category !== "records" &&
       local.category !== "unsupported" &&
-      (questionCategory(text) === "education" || approved)
+      (questionCategory(resolvedQuestion) === "education" || approved)
     ) {
       const timer = setTimeout(() => controller.current?.abort(), 16000);
       try {
@@ -160,13 +162,13 @@ function Conversation({ dataset }: { dataset: DatasetKey }) {
           headers: { "Content-Type": "application/json" },
           signal: controller.current.signal,
           body: JSON.stringify({
-            question: text,
+            question: resolvedQuestion,
             useLive: true,
             healthConsent: approved,
             health:
               approved && local.category === "explanation"
                 ? makeHealthShare(
-                    text,
+                    resolvedQuestion,
                     selectedRecords,
                     dataset,
                     options.asOf,
@@ -316,8 +318,9 @@ function Conversation({ dataset }: { dataset: DatasetKey }) {
               <h3>What would you like to understand?</h3>
               <p>
                 Ask about the research, a specific recorded value, or an
-                explainable observation. Each question stands alone; previous
-                turns stay in this browser.
+                explainable observation. Short follow-ups can reuse the last
+                topic in this dataset. Previous turns stay in this browser;
+                measurement consent is needed for every message.
               </p>
             </div>
           )}
@@ -376,10 +379,10 @@ function Conversation({ dataset }: { dataset: DatasetKey }) {
             {consent
               ? "Local record analysis approved for one message. If live selection is requested for an explanation, up to 31 relevant date/value demo rows and an urgent flag go to the MissionPulse server."
               : "Health measurements are excluded unless you opt in for this message."}{" "}
-            Live requests send only your current question and up to 3 retrieved
-            educational statements to Groq. Names, notes, symptoms, profile IDs,
-            raw measurements and previous messages are never sent to Groq. Use
-            fictional information only.
+            Groq receives only a topic label and up to 2 approved educational
+            statements, not your original message. Names, notes, symptoms,
+            profile IDs, raw measurements and previous messages are never sent
+            to Groq. Use fictional information only.
           </p>
           <label className="form-field" htmlFor="assistant-question">
             <span>Your question</span>
@@ -436,13 +439,37 @@ function AnswerView({ answer }: { answer: AssistantAnswer }) {
         {fallbackReasons[answer.reason] &&
           ` · ${fallbackReasons[answer.reason]} Grounded fallback used.`}
       </p>
-      {answer.sections.map((section) => (
+      {answer.sections.map((section, index) => (
         <section
           key={section.id}
-          className={`answer-section answer-${section.kind}`}
+          className={`answer-section answer-${section.kind}${index === 0 ? " answer-direct" : ""}`}
         >
           <h3>{section.title}</h3>
-          <p>{section.text}</p>
+          {section.kind === "recorded" ? (
+            <>
+              <p>
+                {section.text.includes("Selected mission date:")
+                  ? section.text
+                  : section.text
+                      .split("\n\n")
+                      .filter((part) =>
+                        !part.includes(" · submitted ") &&
+                        !part.includes("indicator-day cells")
+                          ? /Selected range:|Selected mission date:|Arithmetic mean:|Not recorded/.test(
+                              part,
+                            )
+                          : part.includes("indicator-day cells"),
+                      )
+                      .join("\n\n") || section.text.split("\n\n")[0]}
+              </p>
+              <details>
+                <summary>Recorded values & calculation details</summary>
+                <p>{section.text}</p>
+              </details>
+            </>
+          ) : (
+            <p>{section.text}</p>
+          )}
           {section.sourceIds.map((id) => {
             const source = answer.sources.find((item) => item.id === id)!;
             return (
@@ -463,12 +490,14 @@ function AnswerView({ answer }: { answer: AssistantAnswer }) {
           })}
         </section>
       ))}
+      <p className="assistant-disclosure">
+        <strong>Next step:</strong> {answer.nextStep}
+      </p>
       <details>
         <summary>Limitations & safe next step</summary>
         {answer.limitations.map((text) => (
           <p key={text}>{text}</p>
         ))}
-        <p>{answer.nextStep}</p>
       </details>
     </>
   );

@@ -2,6 +2,7 @@ import { DEMO_PROFILE_ID } from "../health/repository";
 import { recordSchema, type HealthCheckIn } from "../health/validation";
 import { dailyRecords } from "../insights/analyze";
 import { scenarioDefinitions } from "../insights/scenarios";
+import { normalizeQuestion } from "./intent";
 import {
   shareIndicators,
   type DatasetKey,
@@ -15,7 +16,7 @@ export function datasetProfileId(dataset: DatasetKey): string {
         .profileId;
 }
 export function requestedIndicators(question: string): ShareIndicator[] {
-  const text = question.toLowerCase();
+  const text = normalizeQuestion(question);
   const result: ShareIndicator[] = [];
   if (/heart|pulse|bpm/.test(text)) result.push("heartRate");
   if (/sleep|slept|sleeping/.test(text)) result.push("sleep");
