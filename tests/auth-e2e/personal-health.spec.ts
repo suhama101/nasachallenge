@@ -142,6 +142,20 @@ test("personal cloud mock: validation, optional nulls, duplicate guard, reload, 
   ])
     expect(edited[0][key]).toEqual(initial[0][key]);
   expect(edited[0].updated_at).not.toEqual(initial[0].updated_at);
+  await page.goto("/astronaut");
+  await page.locator(".overview-measurements > summary").click();
+  await expect(page.locator(".metric-note")).toHaveText([
+    "User-entered measurement; not device telemetry",
+    "User-entered measurement; not device telemetry",
+    "Not recorded",
+    "User-entered measurement; not device telemetry",
+  ]);
+  await expect(page.locator(".metric-source").first()).toContainText(
+    "User-entered",
+  );
+  await expect(page.locator(".metrics-grid")).not.toContainText(/synthetic|demo/i);
+  await page.goto("/astronaut/health-history");
+  await page.locator(".checkin-details summary").click();
   await page
     .getByRole("button", { name: "Delete check-in", exact: true })
     .click();

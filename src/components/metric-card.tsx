@@ -61,7 +61,11 @@ export function LatestMeasurements({
               ? `Needs review · original ${record?.spo2}% kept; excluded from calculations`
               : record?.[key] == null
                 ? "Not recorded"
-                : "User-entered or synthetic; not device telemetry"}
+                : record.source === "user-entered"
+                  ? "User-entered measurement; not device telemetry"
+                  : record.source === "user-entered-demo"
+                    ? "User-entered demo measurement; not device telemetry"
+                    : "Fictional demo measurement; not device telemetry"}
           </p>
           <div className="metric-source">
             {record ? (

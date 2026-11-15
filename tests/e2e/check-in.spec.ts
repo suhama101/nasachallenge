@@ -4,6 +4,13 @@ test("save → reload → filter → dashboard → confirmed reset", async ({
 }) => {
   const runtimeErrors: string[] = [];
   page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  await page.goto("/health-history");
+  await expect(page.locator(".metric-note")).toHaveText(
+    Array(4).fill("Fictional demo measurement; not device telemetry"),
+  );
+  await expect(page.locator(".metric-source").first()).toContainText(
+    "Synthetic demo",
+  );
   await page.goto("/daily-health-check");
   await expect(
     page.getByLabel("Resting heart rate", { exact: false }),
@@ -45,6 +52,12 @@ test("save → reload → filter → dashboard → confirmed reset", async ({
   await expect(
     page.getByRole("status").filter({ hasText: "15 of 15 check-ins" }),
   ).toBeVisible();
+  await expect(page.locator(".metric-note")).toHaveText(
+    Array(4).fill("User-entered demo measurement; not device telemetry"),
+  );
+  await expect(page.locator(".metric-source").first()).toContainText(
+    "User-entered demo",
+  );
   await page.reload();
   await expect(
     page.getByRole("status").filter({ hasText: "15 of 15 check-ins" }),
