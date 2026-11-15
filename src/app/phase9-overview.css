@@ -1,0 +1,141 @@
+/* Personal Mission Overview only. Phase 8 graphs, forms and public demo stay intact. */
+.personal-monitoring[data-section="overview"] .overview-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 16px 30px;
+  align-items: center;
+  padding-block: 20px 14px;
+  border-bottom: 1px solid #354861;
+}
+.personal-monitoring[data-section="overview"] .overview-greeting h1 {
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.25;
+  margin: 7px 0 10px;
+  overflow-wrap: anywhere;
+}
+.personal-monitoring[data-section="overview"] .overview-mission {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #c2d2e4;
+  overflow-wrap: anywhere;
+}
+.overview-mission strong {
+  color: #e7eff9;
+  font-weight: 500;
+}
+.personal-monitoring[data-section="overview"] .overview-hero .overview-profile {
+  grid-column: auto;
+  grid-row: auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.personal-monitoring[data-section="overview"] .overview-profile > div {
+  padding: 10px 12px;
+  background: #17283f;
+  border: 1px solid #334b65;
+}
+.personal-monitoring[data-section="overview"] .overview-profile dt {
+  font-size: 12px;
+}
+.personal-monitoring[data-section="overview"] .overview-profile dd {
+  font-size: 13px;
+}
+.overview-records-note {
+  grid-column: 1 / -1;
+  color: #bacbdd;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.personal-monitoring[data-section="overview"] > .overview-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+  margin: 16px 0;
+  padding: 10px 14px;
+  border: 1px solid #3d5b70;
+  border-radius: 9px;
+  background: #142c3b;
+  line-height: 1.8;
+}
+.overview-status strong {
+  color: #c1eee7;
+  font-size: 14px;
+  font-weight: 600;
+}
+.overview-status p {
+  color: #cbdae8;
+  font-size: 13px;
+}
+.personal-monitoring[data-section="overview"] > .journey-section {
+  margin: 0;
+}
+.personal-monitoring[data-section="overview"] .journey-grid {
+  gap: 16px;
+}
+.personal-monitoring[data-section="overview"] .journey-card {
+  padding: 18px;
+}
+.personal-monitoring[data-section="overview"] .journey-secondary {
+  padding-top: 6px;
+  gap: 24px;
+}
+.personal-monitoring[data-section="overview"] .journey-secondary a {
+  min-height: 44px;
+  font-size: 13px;
+}
+.overview-missing-note {
+  color: #b4c6dc;
+  font-size: 12px;
+  line-height: 1.8;
+  margin-top: 5px;
+}
+.account-site:has(.personal-monitoring[data-section="overview"])
+  .account-header {
+  padding-block: 8px;
+}
+.account-site:has(.personal-monitoring[data-section="overview"]) .account-wide {
+  margin-block: 8px;
+}
+.account-site:has(.personal-monitoring[data-section="overview"])
+  .account-footer {
+  margin-block: 12px;
+  padding-block: 12px;
+}
+@media (max-width: 900px) {
+  .personal-monitoring[data-section="overview"] .overview-hero {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .personal-monitoring[data-section="overview"]
+    .overview-hero
+    .overview-profile {
+    grid-column: 1 / -1;
+  }
+  .overview-records-note {
+    font-size: 13px;
+  }
+}
+@media (max-width: 600px) {
+  .personal-monitoring[data-section="overview"] .overview-hero {
+    padding-top: 16px;
+  }
+  .personal-monitoring[data-section="overview"]
+    .overview-hero
+    .overview-profile {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .personal-monitoring[data-section="overview"] .overview-profile > div {
+    padding: 9px 11px;
+  }
+  .personal-monitoring[data-section="overview"] > .overview-status {
+    margin-block: 14px;
+  }
+  .personal-monitoring[data-section="overview"] .journey-card {
+    padding: 18px;
+  }
+}

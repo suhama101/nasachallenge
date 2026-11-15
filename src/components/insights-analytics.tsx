@@ -1,5 +1,6 @@
 "use client";
 import { useId } from "react";
+import { chartPalette } from "./chart-palette";
 import {
   Bar,
   BarChart,
@@ -30,9 +31,9 @@ import {
   spo2Label,
 } from "@/lib/health/integrity";
 const tooltipStyle = {
-  background: "#121e30",
-  border: "1px solid #42536b",
-  borderRadius: 8,
+  background: "#0e1c34",
+  border: "1px solid #657a98",
+  borderRadius: 12,
   color: "#eef4ff",
   fontSize: 11,
 };
@@ -92,7 +93,7 @@ export function InsightsAnalytics({
           <h2 id="visual-analytics-title">Visual analytics</h2>
           <p>
             {displayDate(data[0].date)}–{displayDate(today)} · mission dates
-            (UTC). Gaps mean missing data.
+            (UTC). Gaps mean missing data. Series colors identify data, not clinical risk.
           </p>
         </div>
       </div>
@@ -149,8 +150,8 @@ export function InsightsAnalytics({
                     {comparison.map((item, index) => (
                       <Cell
                         key={item.name}
-                        fill={index ? "#aba0ef" : "#79dfd5"}
-                        stroke={index ? "#ddd5ff" : "#baf5ed"}
+                        fill={index ? "#a4b7d1" : chartPalette[indicator]}
+                        stroke={index ? "#e4ecf7" : chartPalette[indicator]}
                         strokeDasharray={index ? "4 3" : undefined}
                       />
                     ))}
@@ -228,7 +229,7 @@ export function InsightsAnalytics({
                   <Line
                     dataKey="value"
                     name={config.label}
-                    stroke="#79dfd5"
+                    stroke={chartPalette[indicator]}
                     strokeWidth={2}
                     dot={{ r: 3 }}
                     connectNulls={false}
@@ -295,7 +296,7 @@ export function InsightsAnalytics({
                     yAxisId="sleep"
                     name="Sleep (hours, left)"
                     dataKey="sleep"
-                    stroke="#aba0ef"
+                    stroke={chartPalette.sleep}
                     strokeWidth={2}
                     dot={{ r: 3 }}
                     connectNulls={false}
@@ -305,7 +306,7 @@ export function InsightsAnalytics({
                     yAxisId="fatigue"
                     name="Fatigue (/ 10, right)"
                     dataKey="fatigue"
-                    stroke="#e7bb82"
+                    stroke={chartPalette.fatigue}
                     strokeWidth={2}
                     strokeDasharray="5 4"
                     dot={{ r: 3 }}

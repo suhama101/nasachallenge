@@ -9,7 +9,13 @@ import {
   UserRound,
 } from "lucide-react";
 
-export function JourneyCards({ personal = false }: { personal?: boolean }) {
+export function JourneyCards({
+  personal = false,
+  compact = false,
+}: {
+  personal?: boolean;
+  compact?: boolean;
+}) {
   const prefix = personal ? "/astronaut" : "";
   const cards = [
     {
@@ -43,15 +49,19 @@ export function JourneyCards({ personal = false }: { personal?: boolean }) {
         personal ? "Your personal next steps" : "Explore your demo workspace"
       }
     >
-      <div className="journey-heading">
-        <div>
-          <p className="eyebrow">WHERE WOULD YOU LIKE TO START?</p>
-          <h2>{personal ? "Your next small step" : "Make yourself at home"}</h2>
+      {!compact && (
+        <div className="journey-heading">
+          <div>
+            <p className="eyebrow">WHERE WOULD YOU LIKE TO START?</p>
+            <h2>
+              {personal ? "Your next small step" : "Make yourself at home"}
+            </h2>
+          </div>
+          <span>
+            {personal ? "Personal cloud records" : "Demo only · fictional data"}
+          </span>
         </div>
-        <span>
-          {personal ? "Personal cloud records" : "Demo only · fictional data"}
-        </span>
-      </div>
+      )}
       <div className="journey-grid">
         {cards.map(({ href, icon: Icon, title, action, text }) => (
           <Link className="journey-card" href={href} key={href}>
@@ -68,7 +78,11 @@ export function JourneyCards({ personal = false }: { personal?: boolean }) {
       <div className="journey-secondary">
         <DocumentLink href="/space-health-knowledge">
           <BookOpen size={17} />
-          Space Health Guide{personal && " · public demo library"}
+          {personal && compact ? (
+            "NASA Space Health Guide · public library"
+          ) : (
+            <>Space Health Guide{personal && " · public demo library"}</>
+          )}
           <ArrowUpRight size={14} />
         </DocumentLink>
         <Link href={personal ? "/astronaut/profile" : "/demo"}>

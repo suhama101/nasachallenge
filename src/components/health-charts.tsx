@@ -1,5 +1,6 @@
 "use client";
 import { useId, useState } from "react";
+import { chartPalette } from "./chart-palette";
 import {
   Area,
   AreaChart,
@@ -38,38 +39,38 @@ const chartConfig = {
   heartRate: {
     title: "Resting heart rate",
     unit: "bpm",
-    color: "#5adbd3",
+    color: chartPalette.heartRate,
     icon: Heart,
   },
   sleep: {
     title: "Sleep duration",
     unit: "hours",
-    color: "#aba0ef",
+    color: chartPalette.sleep,
     icon: Moon,
   },
   temperature: {
     title: "Body temperature",
     unit: "°C",
-    color: "#e5bd8c",
+    color: chartPalette.temperature,
     icon: Thermometer,
   },
   spo2: {
     title: "Oxygen saturation",
     unit: "% SpO₂",
-    color: "#8bbcff",
+    color: chartPalette.spo2,
     icon: Droplets,
   },
   bloodPressure: {
     title: "Blood pressure",
     unit: "mmHg",
-    color: "#5adbd3",
+    color: chartPalette.bloodPressure,
     icon: Activity,
   },
 };
 const tooltipStyle = {
-  background: "#121e30",
-  border: "1px solid #42536b",
-  borderRadius: 8,
+  background: "#0e1c34",
+  border: "1px solid #657a98",
+  borderRadius: 12,
   color: "#eef4ff",
 };
 export function TrendChart({
@@ -141,7 +142,7 @@ export function TrendChart({
     </>
   );
   return (
-    <article className="panel chart-panel">
+    <article className="panel chart-panel" data-indicator={kind}>
       <div className="chart-heading">
         <h3>
           <Icon size={16} style={{ color: config.color }} />
@@ -185,7 +186,7 @@ export function TrendChart({
                 {axes}
                 <Line
                   dataKey="systolic"
-                  stroke="#5adbd3"
+                  stroke={chartPalette.systolic}
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   connectNulls={false}
@@ -193,8 +194,9 @@ export function TrendChart({
                 />
                 <Line
                   dataKey="diastolic"
-                  stroke="#aba0ef"
+                  stroke={chartPalette.diastolic}
                   strokeWidth={2}
+                  strokeDasharray="5 4"
                   dot={{ r: 3 }}
                   connectNulls={false}
                   isAnimationActive={false}
@@ -239,12 +241,19 @@ export function TrendChart({
           <p>No {config.title.toLowerCase()} values in this date range.</p>
         </div>
       )}
+      {hasValues && records.length === 1 && (
+        <p className="chart-single-note">
+          One recorded check-in. A single observation does not establish a
+          trend.
+        </p>
+      )}
       <p className="chart-source">
         {records.length > 0 &&
         records.every((row) => row.source === "user-entered")
           ? "Manually entered personal records · mission dates (UTC)"
           : "Synthetic and user-entered demo records · mission dates (UTC)"}
-        {kind === "bloodPressure" && " · Cyan: systolic / Violet: diastolic"}
+        {kind === "bloodPressure" &&
+          " · Solid blue: systolic / Dashed violet: diastolic"}
       </p>
       {kind === "spo2" && records.some((row) => spo2NeedsReview(row.spo2)) && (
         <p className="data-review-note">
@@ -328,7 +337,7 @@ export function HealthCharts({
             {full
               ? "Trends follow the selected mission-date filter."
               : "Mission dates through today (UTC). Each point is a check-in."}{" "}
-            Missing values are never filled in.
+            Missing values are never filled in. Colors identify measurements, not medical risk.
           </p>
         </div>
         {!full && (

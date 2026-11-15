@@ -46,6 +46,9 @@ test("personal cloud mock: validation, optional nulls, duplicate guard, reload, 
   request,
 }, testInfo) => {
   await login(page);
+  await expect(page.locator(".overview-status")).toContainText("0 saved check-ins");
+  await expect(page.locator(".records-empty")).toHaveCount(0);
+  await page.goto("/astronaut/health-history");
   await expect(
     page.getByRole("heading", {
       name: "Your history starts with one check-in",
@@ -273,9 +276,8 @@ test("personal cloud mock: another account and Explore Demo never receive privat
     .getByLabel("Mission environment", { exact: false })
     .selectOption("other");
   await a.getByRole("button", { name: "Save profile and continue" }).click();
-  await expect(
-    a.getByRole("heading", { name: "Your history starts with one check-in" }),
-  ).toBeVisible();
+  await expect(a.locator(".overview-status")).toContainText("0 saved check-ins");
+  await expect(a.locator(".records-empty")).toHaveCount(0);
   await a.goto(
     "/astronaut/health-history?profileId=22222222-2222-4222-8222-222222222222",
   );

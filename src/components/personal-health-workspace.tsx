@@ -35,6 +35,7 @@ import { InsightCard } from "./insight-card";
 import { InsightsAnalytics } from "./insights-analytics";
 import { Button } from "./ui/button";
 import { JourneyCards } from "./journey-cards";
+import { IndicatorGuide } from "./indicator-guide";
 const csaResearch = knowledgeEntries.find(
   (entry) => entry.id === "space-research",
 );
@@ -75,19 +76,53 @@ function PersonalPage({
     "health-insights": "Health Insights",
   };
   return (
-    <div className="personal-monitoring">
-      <p className="eyebrow">YOUR PERSONAL MISSION WORKSPACE</p>
-      <h1>{titles[section]}</h1>
-      <p className="account-intro">
-        {profile.mission_name} · {profile.crew_identifier}. Manually entered
-        research / simulation records, saved to your account. No medical device
-        is connected.
-      </p>
-      <p className="personal-privacy-note">
-        Only your account’s records are used here. Demo scenarios remain
-        separate. These views describe your entries; they do not provide a
-        diagnosis or verify astronaut status.
-      </p>
+    <div className="personal-monitoring" data-section={section}>
+      {section === "overview" ? (
+        <header className="overview-hero">
+          <div className="overview-greeting">
+            <p className="eyebrow">YOUR PERSONAL WORKSPACE</p>
+            <h1>{titles[section]}</h1>
+            <p className="overview-mission">
+              <strong>{profile.mission_name}</strong>
+              <span>Crew {profile.crew_identifier}</span>
+            </p>
+          </div>
+          <dl className="profile-summary overview-profile">
+            <div>
+              <dt>Environment</dt>
+              <dd>{environmentLabels[profile.mission_environment]}</dd>
+            </div>
+            <div>
+              <dt>Role</dt>
+              <dd>{profile.role || "Not added"}</dd>
+            </div>
+            <div>
+              <dt>Mission start</dt>
+              <dd>{profile.mission_start_date || "Not added"}</dd>
+            </div>
+          </dl>
+          <p className="overview-records-note">
+            Manually entered research / simulation records, saved to your
+            account. No device is connected. Explore Demo records remain
+            separate.
+          </p>
+        </header>
+      ) : (
+        <>
+          <p className="eyebrow">YOUR PERSONAL MISSION WORKSPACE</p>
+          <h1>{titles[section]}</h1>
+          <p className="account-intro">
+            {profile.mission_name} · {profile.crew_identifier}. Manually entered
+            research / simulation records, saved to your account. No medical
+            device is connected.
+          </p>
+          <p className="personal-privacy-note">
+            Only your account’s records are used here. Demo scenarios remain
+            separate. These views describe your entries; they do not provide a
+            diagnosis or verify astronaut status.
+          </p>
+        </>
+      )}
       {health.error && (
         <div role="alert" className="account-error">
           <p>{health.error}</p>
@@ -110,7 +145,7 @@ function PersonalPage({
       ) : health.loading ? (
         <Loading />
       ) : health.error ? null : section === "overview" ? (
-        <PersonalOverview profile={profile} />
+        <PersonalOverview />
       ) : section === "health-history" ? (
         <PersonalHistory profile={profile} />
       ) : (
@@ -142,56 +177,36 @@ function EmptyHistory() {
     </section>
   );
 }
-function PersonalOverview({ profile }: { profile: AstronautProfileRow }) {
+function PersonalOverview() {
   const { records, today } = usePersonalHealth();
   const latest = latestRecord(records);
   return (
     <>
-      <JourneyCards personal />
-      <section className="panel personal-next">
-        <h2>
+      <section
+        className="overview-status"
+        aria-label="Personal check-in status"
+      >
+        <strong>
+          {records.length} saved{" "}
+          {records.length === 1 ? "check-in" : "check-ins"}
+        </strong>
+        <p>
           {hasCompleteCheckInForDate(records, today)
             ? "Today’s personal check-in is complete"
-            : "Ready for your next check-in?"}
-        </h2>
-        <p>
-          {records.length} saved check-ins · Profile complete · Email confirmed
+            : "Ready for today’s check-in."}
         </p>
-        <div className="account-actions">
-          <Button asChild>
-            <Link href="/astronaut/daily-health-check">Record a check-in</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/astronaut/health-history">Review Health History</Link>
-          </Button>
-          <Link href="/astronaut/health-insights">Explore Health Insights</Link>
-        </div>
-        <dl className="profile-summary">
-          <div>
-            <dt>Mission</dt>
-            <dd>{profile.mission_name}</dd>
-          </div>
-          <div>
-            <dt>Environment</dt>
-            <dd>{environmentLabels[profile.mission_environment]}</dd>
-          </div>
-          <div>
-            <dt>Role</dt>
-            <dd>{profile.role || "Not added"}</dd>
-          </div>
-          <div>
-            <dt>Mission start</dt>
-            <dd>{profile.mission_start_date || "Not added"}</dd>
-          </div>
-        </dl>
       </section>
-      {!latest ? (
-        <EmptyHistory />
-      ) : (
-        <>
+      <JourneyCards personal compact />
+      <p className="overview-missing-note">
+        Missing measurements stay “Not recorded” and are excluded from
+        calculations. One check-in does not establish a trend.
+      </p>
+      {latest && (
+        <details className="panel overview-measurements">
+          <summary>Latest measurements &amp; history charts</summary>
           <LatestMeasurements record={latest} />
           <HealthCharts records={records} today={today} full />
-        </>
+        </details>
       )}
     </>
   );
@@ -450,6 +465,9 @@ function PersonalInsights({ profileId }: { profileId: string }) {
           NASA-endorsed assessments.
         </p>
         <p>{report.records.length} personal records available for analysis.</p>
+        <a className="guide-jump" href="#understand-your-health">
+          Learn what your measurements mean →
+        </a>
         {report.limitations.length > 0 && (
           <details>
             <summary>Data completeness and limitations</summary>
@@ -514,6 +532,7 @@ function PersonalInsights({ profileId }: { profileId: string }) {
         days={days}
         timeline={timeline}
       />
+      <IndicatorGuide />
       <section>
         <h2>Space health research context</h2>
         <p className="account-intro">

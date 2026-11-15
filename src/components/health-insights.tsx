@@ -1,4 +1,5 @@
 "use client";
+import { IndicatorGuide } from "./indicator-guide";
 import { useMemo, useState } from "react";
 import {
   ArrowUpRight,
@@ -274,6 +275,7 @@ export function HealthInsights() {
   );
   return (
     <>
+      <a className="guide-jump" href="#understand-your-health">Learn what your measurements mean →</a>
       {report.records.some((row) => spo2NeedsReview(row.spo2)) && (
         <aside
           className="panel data-review-banner"
@@ -597,6 +599,7 @@ export function HealthInsights() {
           timeline={timeline}
         />
       )}
+      <IndicatorGuide />
       <section aria-labelledby="scientific-context-title">
         <div className="section-heading">
           <div>

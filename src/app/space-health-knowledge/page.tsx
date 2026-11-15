@@ -1,6 +1,7 @@
 import { PageLayout, PageHeading } from "@/components/page-layout";
 import { KnowledgeCatalog } from "@/components/knowledge-catalog";
 import { MeasurementReadingGuide, ResearchGuide } from "@/components/research-guide";
+import { IndicatorGuide } from "@/components/indicator-guide";
 export const metadata = { title: "Space Health Knowledge" };
 export default function KnowledgePage() {
   return (
@@ -19,6 +20,7 @@ export default function KnowledgePage() {
         </p>
       </aside>
       <MeasurementReadingGuide />
+      <IndicatorGuide />
       <KnowledgeCatalog />
       <ResearchGuide />
     </PageLayout>

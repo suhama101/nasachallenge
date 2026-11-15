@@ -1,0 +1,655 @@
+/* Phase 8: presentation refinements. No fixed page heights or clipped content. */
+.journey-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  box-shadow: 0 5px 16px #05122514;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms;
+}
+.journey-card:nth-child(1) {
+  background: #e0f5ee;
+  border-color: #9ad7c4;
+}
+.journey-card:nth-child(2) {
+  background: #e8f2ff;
+  border-color: #b0cbef;
+}
+.journey-card:nth-child(3) {
+  background: #efecff;
+  border-color: #c5b8eb;
+}
+.journey-card > svg {
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #bfe7d7;
+  color: #216750;
+  margin-bottom: 16px;
+}
+.journey-card:nth-child(2) > svg {
+  color: #345f94;
+  background: #cfdff7;
+}
+.journey-card:nth-child(3) > svg {
+  color: #66519b;
+  background: #ddd4f5;
+}
+.journey-card h3 {
+  font-size: 17px;
+  line-height: 1.45;
+}
+.journey-card p {
+  margin-bottom: 16px;
+}
+.journey-card > span {
+  margin-top: auto;
+  padding-top: 14px;
+}
+.journey-card:nth-child(2) > span {
+  color: #315e8c;
+  border-color: #bdd0eb;
+}
+.journey-card:nth-child(3) > span {
+  color: #614b94;
+  border-color: #cec2e8;
+}
+.journey-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px #05122529;
+}
+.journey-card:nth-child(1):hover {
+  background: #d4eee4;
+}
+.journey-card:nth-child(2):hover {
+  background: #dbeaff;
+}
+.journey-card:nth-child(3):hover {
+  background: #e7e0fb;
+}
+.journey-card:focus-visible {
+  outline: 3px solid #ffd19e;
+  outline-offset: 5px;
+}
+
+/* Scope compact workspace spacing to the authenticated overview only. */
+.account-site:has(.personal-monitoring[data-section="overview"])
+  .account-header {
+  padding-block: 12px;
+}
+.account-site:has(.personal-monitoring[data-section="overview"]) .account-wide {
+  max-width: 1280px;
+  margin-block: 14px;
+}
+.account-site:has(.personal-monitoring[data-section="overview"])
+  .astronaut-toolbar {
+  gap: 10px;
+}
+.account-site:has(.personal-monitoring[data-section="overview"])
+  .astronaut-navigation {
+  padding: 6px 0;
+  gap: 8px 22px;
+  font-size: 13px;
+}
+.account-site:has(.personal-monitoring[data-section="overview"])
+  .astronaut-navigation
+  a {
+  padding-block: 10px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.account-site:has(.personal-monitoring[data-section="overview"])
+  .account-footer {
+  max-width: 1280px;
+  margin-block: 12px;
+  padding-block: 10px;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.personal-monitoring[data-section="overview"] > .eyebrow {
+  margin-top: 12px;
+}
+.personal-monitoring[data-section="overview"] > h1 {
+  font-size: clamp(25px, 3vw, 31px);
+  margin: 6px 0;
+  line-height: 1.25;
+}
+.personal-monitoring[data-section="overview"] > .account-intro {
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 6px 0 10px;
+}
+.personal-monitoring[data-section="overview"] > .personal-privacy-note {
+  font-size: 12px;
+  padding: 10px 14px;
+  line-height: 1.65;
+  border-radius: 9px;
+}
+.personal-monitoring[data-section="overview"] > .journey-section {
+  margin: 16px 0 8px;
+}
+.personal-monitoring[data-section="overview"] .journey-heading {
+  margin-bottom: 12px;
+  align-items: center;
+}
+.personal-monitoring[data-section="overview"] .journey-heading h2 {
+  font-size: 20px;
+  margin-top: 4px;
+}
+.personal-monitoring[data-section="overview"] .journey-card {
+  padding: 17px 20px;
+}
+.personal-monitoring[data-section="overview"] .journey-card > svg {
+  margin-bottom: 11px;
+}
+.personal-monitoring[data-section="overview"] .journey-card p {
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+.personal-monitoring[data-section="overview"] .journey-secondary {
+  padding-top: 2px;
+  gap: 24px;
+}
+.personal-monitoring[data-section="overview"] > .personal-next {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 16px;
+  padding: 12px 16px;
+  margin-top: 4px;
+  line-height: 1.65;
+  border-top-width: 1px;
+}
+.personal-monitoring[data-section="overview"] .personal-next > h2 {
+  font-size: 15px;
+}
+.personal-monitoring[data-section="overview"] .personal-next > p {
+  font-size: 12px;
+  color: #bdcde0;
+}
+.personal-monitoring[data-section="overview"] .profile-summary {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 8px 0 0;
+  gap: 12px;
+}
+.personal-monitoring[data-section="overview"] .profile-summary > div {
+  border: 0;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #101d34;
+  overflow-wrap: anywhere;
+}
+.personal-monitoring[data-section="overview"] .profile-summary dt {
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+.personal-monitoring[data-section="overview"] .profile-summary dd {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.overview-more-actions {
+  grid-column: 1 / -1;
+}
+.overview-more-actions > summary {
+  color: #c0dbe5;
+  font-size: 12px;
+  padding-block: 10px;
+  min-height: 40px;
+}
+.overview-more-actions .account-actions {
+  margin: 4px 0 8px;
+}
+.personal-monitoring[data-section="overview"] > .records-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  text-align: left;
+  padding: 12px 16px;
+  margin-top: 12px;
+}
+.personal-monitoring[data-section="overview"] > .records-empty h2 {
+  font-size: 15px;
+  margin: 0;
+}
+.personal-monitoring[data-section="overview"] > .records-empty p {
+  font-size: 12px;
+  margin: 0;
+  flex: 1 1 240px;
+}
+.personal-monitoring[data-section="overview"]
+  > .records-empty
+  [data-slot="button"] {
+  margin-top: 0;
+}
+.personal-monitoring[data-section="overview"] > .overview-measurements {
+  margin-top: 12px;
+  padding: 0 16px;
+}
+.overview-measurements > summary {
+  font-size: 13px;
+  font-weight: 550;
+  color: #d8e5f5;
+  padding-block: 13px;
+  min-height: 44px;
+}
+.overview-measurements[open] {
+  padding-bottom: 18px;
+}
+.overview-measurements .metrics-grid {
+  margin-block: 12px 20px;
+}
+
+/* Retain exact axes, points, null gaps and tables; improve their surfaces. */
+.chart-panel {
+  background: linear-gradient(160deg, #192b48, #14213b);
+  border-color: #3c5272;
+  box-shadow: 0 5px 18px #07122625;
+  border-radius: 16px;
+}
+.chart-heading {
+  padding-bottom: 8px;
+}
+.chart-heading h3 {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.chart-heading > span {
+  font-size: 11px;
+  color: #b7c9de;
+}
+.chart-summary {
+  padding: 12px 14px;
+  margin-block: 6px 14px;
+  background: #0e1c33;
+  border: 1px solid #344b6a;
+  border-radius: 10px;
+}
+.chart-summary > span {
+  font-size: 12px;
+  color: #c0d0e4;
+}
+.chart-panel[data-indicator="heartRate"] .chart-summary {
+  border-left: 3px solid #ff9eaa;
+}
+.chart-panel[data-indicator="sleep"] .chart-summary {
+  border-left: 3px solid #b9a6ff;
+}
+.chart-panel[data-indicator="spo2"] .chart-summary {
+  border-left: 3px solid #66dddf;
+}
+.chart-panel[data-indicator="temperature"] .chart-summary {
+  border-left: 3px solid #f5ba78;
+}
+.chart-panel[data-indicator="bloodPressure"] .chart-summary {
+  border-left: 3px solid #86c5ff;
+}
+.chart-source,
+.analytics-caption {
+  font-size: 11px;
+  color: #bdcce0;
+  line-height: 1.8;
+}
+.chart-table summary,
+.analytics-data-table > summary {
+  font-size: 12px;
+  min-height: 44px;
+  padding-block: 13px;
+  color: #c5dfeb;
+}
+.chart-empty {
+  background: #101e35;
+  border: 1px dashed #536b8c;
+  border-radius: 12px;
+  margin-block: 14px;
+  padding: 22px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  padding: 12px !important;
+  box-shadow: 0 6px 20px #050f2344;
+}
+.recharts-cartesian-axis-tick text {
+  fill: #c4d2e5;
+}
+
+.indicator-guide {
+  margin-block: 30px;
+  scroll-margin-top: 24px;
+}
+.indicator-guide > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+.indicator-guide h2 {
+  font-size: clamp(23px, 3vw, 28px);
+  font-weight: 600;
+  letter-spacing: -0.6px;
+  margin-top: 7px;
+}
+.indicator-guide > p {
+  max-width: 90ch;
+  font-size: 13px;
+  color: #bdcde1;
+  line-height: 1.9;
+}
+.indicator-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+  align-items: start;
+}
+.indicator-lesson {
+  border: 1px solid #476180;
+  border-radius: 12px;
+  background: #172940;
+  min-width: 0;
+}
+.indicator-lesson > summary {
+  padding: 18px;
+  min-height: 70px;
+  color: #ecf3fb;
+  list-style-position: inside;
+}
+.indicator-lesson > summary > svg {
+  display: inline-block;
+  vertical-align: middle;
+  color: #9ed7df;
+  margin-right: 9px;
+}
+.indicator-lesson > summary strong {
+  font-size: 15px;
+  font-weight: 550;
+}
+.indicator-lesson > summary small {
+  display: block;
+  color: #b5c9df;
+  font-size: 11px;
+  margin: 8px 0 0 30px;
+  line-height: 1.6;
+}
+.indicator-lesson[open] {
+  border-color: #7aa3b6;
+  background: #192e47;
+}
+.indicator-lesson > .lesson-body {
+  padding: 0 20px 20px;
+}
+.lesson-body dl {
+  display: grid;
+  gap: 16px;
+  border-top: 1px solid #3d5471;
+  padding-top: 18px;
+}
+.lesson-body dt {
+  color: #9edee6;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 1.1px;
+  margin-bottom: 6px;
+}
+.lesson-body dd {
+  color: #d1deed;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.85;
+}
+.lesson-body .lesson-fact {
+  padding: 13px;
+  border-left: 3px solid #aba4e8;
+  background: #243653;
+  border-radius: 0 9px 9px 0;
+}
+.lesson-body .lesson-help {
+  padding: 13px;
+  border: 1px solid #94725d;
+  background: #302d34;
+  border-radius: 9px;
+}
+.lesson-source {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 12px;
+  color: #a8e5ed;
+  font-size: 12px;
+  line-height: 1.8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.lesson-source svg {
+  align-self: center;
+}
+.lesson-attribution {
+  color: #b3c5da;
+  font-size: 11px;
+  line-height: 1.8;
+  margin-top: 12px;
+}
+.guide-research-map {
+  margin-top: 18px;
+  padding: 2px 18px 14px;
+  border: 1px solid #4a607c;
+  border-radius: 12px;
+  background: #15253e;
+}
+.guide-research-map > summary {
+  font-size: 13px;
+  padding-block: 14px;
+  min-height: 44px;
+}
+.guide-research-map ol {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+.guide-research-map li {
+  font-size: 12px;
+  color: #bdcee0;
+  line-height: 1.8;
+  margin-top: 12px;
+}
+.guide-research-map a {
+  color: #9ddfe9;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.guide-research-map p {
+  font-size: 12px;
+  color: #c5d7e8;
+  line-height: 1.8;
+  margin-top: 10px;
+}
+.indicator-emergency {
+  margin-top: 14px;
+  padding: 13px 16px;
+  background: #302b32;
+  border: 1px solid #967361;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #f0dbd0;
+  line-height: 1.8;
+}
+@media (max-width: 900px) {
+  .personal-monitoring[data-section="overview"] > .personal-next {
+    grid-template-columns: 1fr;
+  }
+  .personal-monitoring[data-section="overview"] .profile-summary {
+    grid-row: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .personal-monitoring[data-section="overview"] .journey-heading {
+    flex-wrap: wrap;
+  }
+  .indicator-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .personal-monitoring[data-section="overview"] .journey-card {
+    padding: 20px;
+  }
+  .personal-monitoring[data-section="overview"] .journey-heading {
+    align-items: flex-start;
+  }
+  .personal-monitoring[data-section="overview"] .profile-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .personal-monitoring[data-section="overview"] > .records-empty {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .personal-monitoring[data-section="overview"] > .records-empty p {
+    flex: auto;
+  }
+  .personal-monitoring[data-section="overview"] > .personal-privacy-note {
+    font-size: 13px;
+  }
+  .indicator-guide > header {
+    align-items: flex-start;
+  }
+  .indicator-lesson > summary {
+    padding: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .journey-card {
+    transition: none;
+  }
+  .journey-card:hover {
+    transform: none;
+  }
+}
+
+@media (min-width: 1100px) {
+  .personal-monitoring[data-section="overview"] > .journey-section {
+    margin-block: 10px 4px;
+  }
+  .personal-monitoring[data-section="overview"] .journey-heading {
+    margin-bottom: 10px;
+  }
+  .personal-monitoring[data-section="overview"] > .personal-next {
+    padding: 10px 14px;
+  }
+  .personal-monitoring[data-section="overview"] .profile-summary {
+    margin-top: 4px;
+  }
+  .personal-monitoring[data-section="overview"] > .records-empty {
+    padding-block: 10px;
+  }
+  .account-site:has(.personal-monitoring[data-section="overview"])
+    .account-wide {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 18px;
+    margin-block: 10px;
+  }
+  .account-site:has(.personal-monitoring[data-section="overview"])
+    .astronaut-toolbar {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .account-site:has(.personal-monitoring[data-section="overview"])
+    .astronaut-navigation {
+    grid-column: 1;
+    grid-row: 1;
+    gap: 6px 18px;
+  }
+  .account-site:has(.personal-monitoring[data-section="overview"])
+    .account-footer {
+    margin-block: 6px;
+    padding-block: 6px;
+  }
+  .personal-monitoring[data-section="overview"] {
+    grid-column: 1 / -1;
+  }
+  .personal-monitoring[data-section="overview"] .journey-heading > div {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  .personal-monitoring[data-section="overview"] .journey-heading h2 {
+    margin-top: 0;
+  }
+  .personal-monitoring[data-section="overview"] .journey-card {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 6px 12px;
+    padding: 16px;
+  }
+  .personal-monitoring[data-section="overview"] .journey-card > svg {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: 40px;
+    height: 40px;
+    padding: 9px;
+    margin: 0;
+  }
+  .personal-monitoring[data-section="overview"] .journey-card h3 {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .personal-monitoring[data-section="overview"] .journey-card p {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+  .personal-monitoring[data-section="overview"] .journey-card > span {
+    grid-column: 1 / -1;
+    margin-top: 5px;
+    padding-top: 10px;
+  }
+  .personal-monitoring[data-section="overview"] .personal-next > h2 {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .personal-monitoring[data-section="overview"] .personal-next > p {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .personal-monitoring[data-section="overview"] .overview-more-actions {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+  .personal-monitoring[data-section="overview"] .overview-more-actions[open] {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  .personal-monitoring[data-section="overview"] .profile-summary {
+    grid-row: 3;
+  }
+  .personal-monitoring[data-section="overview"] > .records-empty {
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-bottom: 0;
+  }
+}
+.guide-jump {
+  display: inline-flex;
+  align-items: center;
+  color: #a8e5ed;
+  font-size: 13px;
+  min-height: 44px;
+  line-height: 1.7;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-block: 6px;
+}
+.chart-single-note {
+  color: #c1d0e3;
+  font-size: 12px;
+  line-height: 1.8;
+  padding-block: 8px;
+}
