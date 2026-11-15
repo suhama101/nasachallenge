@@ -89,7 +89,7 @@ test("insights link to guidance and card hover respects reduced motion", async (
 }) => {
   await page.goto("/health-insights");
   await page
-    .getByRole("link", { name: "Learn what your measurements mean" })
+    .getByRole("link", { name: "What Do My Measurements Mean?", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Understand Your Health", exact: true }),

@@ -36,6 +36,7 @@ import { InsightsAnalytics } from "./insights-analytics";
 import { Button } from "./ui/button";
 import { JourneyCards } from "./journey-cards";
 import { IndicatorGuide } from "./indicator-guide";
+import { InsightsStart, InsightsComparison } from "./insights-summary";
 const csaResearch = knowledgeEntries.find(
   (entry) => entry.id === "space-research",
 );
@@ -73,7 +74,7 @@ function PersonalPage({
     overview: `Welcome, ${profile.display_name}`,
     "daily-health-check": "Daily Health Check",
     "health-history": "Health History",
-    "health-insights": "Health Insights",
+    "health-insights": "Understand Your Health",
   };
   return (
     <div className="personal-monitoring" data-section={section}>
@@ -112,15 +113,23 @@ function PersonalPage({
           <p className="eyebrow">YOUR PERSONAL MISSION WORKSPACE</p>
           <h1>{titles[section]}</h1>
           <p className="account-intro">
-            {profile.mission_name} · {profile.crew_identifier}. Manually entered
-            research / simulation records, saved to your account. No medical
-            device is connected.
+            {section === "health-insights" ? (
+              "Learn what your measurements mean, track changes, and understand how spaceflight can affect health."
+            ) : (
+              <>
+                {profile.mission_name} · {profile.crew_identifier}. Manually
+                entered research / simulation records, saved to your account. No
+                medical device is connected.
+              </>
+            )}
           </p>
-          <p className="personal-privacy-note">
-            Only your account’s records are used here. Demo scenarios remain
-            separate. These views describe your entries; they do not provide a
-            diagnosis or verify astronaut status.
-          </p>
+          {section !== "health-insights" && (
+            <p className="personal-privacy-note">
+              Only your account’s records are used here. Demo scenarios remain
+              separate. These views describe your entries; they do not provide a
+              diagnosis or verify astronaut status.
+            </p>
+          )}
         </>
       )}
       {health.error && (
@@ -448,57 +457,8 @@ function PersonalInsights({ profileId }: { profileId: string }) {
     () => observationTimeline(records, options, days),
     [records, options, days],
   );
-  return (
+  const analytics = (
     <>
-      {!records.length && <EmptyHistory />}
-      <section className="panel personal-insights-note">
-        <h2>Understand your own patterns</h2>
-        <p>
-          Comparisons use your earlier distinct mission dates, excluding the
-          current day. At least five usable earlier dates are needed for a
-          personal baseline. Missing readings remain missing; insufficient
-          history is not a reassurance about health.
-        </p>
-        <p>
-          Statistics and change labels are descriptive prototype rules, not
-          clinical thresholds, diagnoses, emergency predictions, or
-          NASA-endorsed assessments.
-        </p>
-        <p>{report.records.length} personal records available for analysis.</p>
-        <a className="guide-jump" href="#understand-your-health">
-          Learn what your measurements mean →
-        </a>
-        {report.limitations.length > 0 && (
-          <details>
-            <summary>Data completeness and limitations</summary>
-            <ul>
-              {report.limitations.map((note) => (
-                <li key={note}>{note}</li>
-              ))}
-            </ul>
-          </details>
-        )}
-      </section>
-      <section
-        className="personal-observations"
-        aria-label="Personal monitoring observations"
-      >
-        {report.observations.length ? (
-          report.observations.map((observation) => (
-            <InsightCard key={observation.id} observation={observation} />
-          ))
-        ) : (
-          <div className="panel records-empty">
-            <h2>More history is needed for comparisons</h2>
-            <p>
-              Record measurements over several mission dates. Trend charts show
-              the entries you have; absent measurements are never estimated.
-            </p>
-            <Link href="/astronaut/daily-health-check">Record a check-in</Link>
-          </div>
-        )}
-      </section>
-      <BaselineComparisons report={report} />
       <div className="panel analytics-controls">
         <div className="form-field">
           <label htmlFor="personal-indicator">Trend indicator</label>
@@ -531,37 +491,114 @@ function PersonalInsights({ profileId }: { profileId: string }) {
         indicator={indicator}
         days={days}
         timeline={timeline}
+        guided
       />
-      <IndicatorGuide />
-      <section>
-        <h2>Space health research context</h2>
-        <p className="account-intro">
-          Educational sources explain spaceflight research; they do not validate
-          this application’s statistical rules or diagnose your health.
-        </p>
-        <div className="reference-grid">
-          {scientificReferences.map((reference) => (
-            <article key={reference.id} className="panel reference-card">
-              <h3>{reference.topic}</h3>
-              <p>{reference.explanation}</p>
-              <p>{reference.limitations}</p>
-              <a href={reference.url} target="_blank" rel="noreferrer">
-                {reference.organization} · {reference.title}
-              </a>
-            </article>
-          ))}
-          {csaResearch && (
-            <article className="panel reference-card">
-              <h3>{csaResearch.title}</h3>
-              <p>{csaResearch.summary}</p>
-              <p>{csaResearch.limitations}</p>
-              <a href={csaResearch.sourceUrl} target="_blank" rel="noreferrer">
-                {csaResearch.organization} · {csaResearch.sourceTitle}
-              </a>
-            </article>
-          )}
-        </div>
-      </section>
     </>
+  );
+  return (
+    <div className="guided-insights" data-record-count={records.length}>
+      <InsightsStart report={report} count={records.length} personal />
+      {report.observations
+        .filter((observation) => observation.kind === "urgent")
+        .map((observation) => (
+          <InsightCard key={observation.id} observation={observation} />
+        ))}
+      {records.length > 1 && analytics}
+      {records.length > 0 && <InsightsComparison report={report} />}
+      {records.length > 1 &&
+        report.observations.some(
+          (observation) => observation.kind !== "urgent",
+        ) && (
+          <details className="panel insights-observations-details">
+            <summary>
+              Recorded change observations · evidence &amp; next steps
+            </summary>
+            <section
+              className="personal-observations"
+              aria-label="Personal monitoring observations"
+            >
+              {report.observations
+                .filter((observation) => observation.kind !== "urgent")
+                .map((observation) => (
+                  <InsightCard key={observation.id} observation={observation} />
+                ))}
+            </section>
+          </details>
+        )}
+      <IndicatorGuide />
+      <details className="panel insights-advanced">
+        <summary>Advanced Analysis</summary>
+        <p>
+          Exact statistics, assumptions, data availability and research detail.
+          These descriptive prototype rules are not clinically validated.
+        </p>
+        <section className="panel personal-insights-note">
+          <h2>Understand your own patterns</h2>
+          <p>
+            Comparisons use your earlier distinct mission dates, excluding the
+            current day. At least five usable earlier dates are needed for a
+            personal baseline. Missing readings remain missing; insufficient
+            history is not a reassurance about health.
+          </p>
+          <p>
+            Statistics and change labels are descriptive prototype rules, not
+            clinical thresholds, diagnoses, emergency predictions, or
+            NASA-endorsed assessments.
+          </p>
+          <p>
+            {report.records.length} personal records available for analysis.
+          </p>
+          <a className="guide-jump" href="#understand-your-health">
+            Learn what your measurements mean →
+          </a>
+          {report.limitations.length > 0 && (
+            <details>
+              <summary>Data completeness and limitations</summary>
+              <ul>
+                {report.limitations.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </section>
+        <BaselineComparisons report={report} />
+        {records.length <= 1 && analytics}
+        <section>
+          <h2>Space health research context</h2>
+          <p className="account-intro">
+            Educational sources explain spaceflight research; they do not
+            validate this application’s statistical rules or diagnose your
+            health.
+          </p>
+          <div className="reference-grid">
+            {scientificReferences.map((reference) => (
+              <article key={reference.id} className="panel reference-card">
+                <h3>{reference.topic}</h3>
+                <p>{reference.explanation}</p>
+                <p>{reference.limitations}</p>
+                <a href={reference.url} target="_blank" rel="noreferrer">
+                  {reference.organization} · {reference.title}
+                </a>
+              </article>
+            ))}
+            {csaResearch && (
+              <article className="panel reference-card">
+                <h3>{csaResearch.title}</h3>
+                <p>{csaResearch.summary}</p>
+                <p>{csaResearch.limitations}</p>
+                <a
+                  href={csaResearch.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {csaResearch.organization} · {csaResearch.sourceTitle}
+                </a>
+              </article>
+            )}
+          </div>
+        </section>
+      </details>
+    </div>
   );
 }

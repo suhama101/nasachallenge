@@ -4,6 +4,7 @@ import "./globals.css";
 import "./phase7.css";
 import "./phase8.css";
 import "./phase9-overview.css";
+import "./insights-clarity.css";
 import { ApplicationFrame } from "@/components/application-frame";
 export const metadata: Metadata = {
   title: {

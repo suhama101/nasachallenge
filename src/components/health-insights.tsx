@@ -1,5 +1,6 @@
 "use client";
 import { IndicatorGuide } from "./indicator-guide";
+import { InsightsStart, InsightsComparison } from "./insights-summary";
 import { useMemo, useState } from "react";
 import {
   ArrowUpRight,
@@ -29,11 +30,7 @@ import { scientificReferences } from "@/lib/insights/references";
 import { displayDate, displayTimestamp } from "@/lib/health/dates";
 import { sourceLabel } from "@/lib/health/selectors";
 import { mission } from "@/lib/mock-data";
-import {
-  spo2NeedsReview,
-  spo2ReviewMessage,
-  spo2Label,
-} from "@/lib/health/integrity";
+import { spo2NeedsReview, spo2Label } from "@/lib/health/integrity";
 import type { AnalysisReport } from "@/lib/insights/types";
 
 export function BaselineComparisons({ report }: { report: AnalysisReport }) {
@@ -273,22 +270,126 @@ export function HealthInsights() {
     (observation) =>
       !visibleObservations.some((visible) => visible.id === observation.id),
   );
-  return (
+  const analytics = (
     <>
-      <a className="guide-jump" href="#understand-your-health">Learn what your measurements mean →</a>
-      {report.records.some((row) => spo2NeedsReview(row.spo2)) && (
-        <aside
-          className="panel data-review-banner"
-          role="note"
-          aria-label="Oxygen readings need review"
-        >
-          <h2>Saved oxygen readings need review</h2>
-          <p>{spo2ReviewMessage}</p>
-          <Link href="/health-history">
-            Review the original check-ins in Health History →
-          </Link>
-        </aside>
+      <div
+        className="panel analytics-controls"
+        aria-label="Visual analytics settings"
+      >
+        <div className="form-field">
+          <label htmlFor="insight-indicator">Trend indicator</label>
+          <select
+            id="insight-indicator"
+            value={indicator}
+            onChange={(event) =>
+              setIndicator(event.target.value as NumericIndicator)
+            }
+          >
+            {numericIndicators.map((key) => (
+              <option value={key} key={key}>
+                {indicatorConfig[key].label} ({indicatorConfig[key].unit})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-field">
+          <label htmlFor="insight-days">Analytics time range</label>
+          <select
+            id="insight-days"
+            value={days}
+            onChange={(event) => setDays(Number(event.target.value) as 7 | 30)}
+          >
+            <option value={7}>Last 7 mission dates</option>
+            <option value={30}>Last 30 mission dates</option>
+          </select>
+        </div>
+        <p>
+          Missing dates remain visible as gaps. Mood stays categorical in the
+          baseline table; it is not assigned an invented numeric score.
+        </p>
+      </div>
+      {report.validClock && (
+        <InsightsAnalytics
+          report={report}
+          indicator={indicator}
+          days={days}
+          timeline={timeline}
+          guided
+        />
       )}
+    </>
+  );
+  const observations = (
+    <>
+      <section aria-labelledby="latest-observations-title">
+        <div className="section-heading">
+          <div>
+            <h2 id="latest-observations-title">
+              <Sparkles size={16} />
+              Latest health observations
+            </h2>
+            <p>
+              Descriptive software comparisons. Select an observation’s evidence
+              to inspect its records and exact rule.
+            </p>
+          </div>
+        </div>
+        {urgent ? (
+          <div className="panel records-empty">
+            <h3>Statistical observation list withheld</h3>
+            <p>
+              The explicit urgent report above takes priority over all baseline
+              categories. No automated symptom-resolution or approved clinical
+              protocol is configured.
+            </p>
+          </div>
+        ) : report.observations.length ? (
+          <>
+            <div className="insights-observation-grid">
+              {visibleObservations.map((observation) => (
+                <InsightCard observation={observation} key={observation.id} />
+              ))}
+            </div>
+            {otherObservations.length > 0 && (
+              <details className="panel methodology-details">
+                <summary>
+                  Expand {otherObservations.length} additional stable
+                  statistical comparisons
+                </summary>
+                <p>
+                  These comparisons did not meet the prototype change rule. They
+                  do not establish health or safety.
+                </p>
+                <div className="insights-observation-grid">
+                  {otherObservations.map((observation) => (
+                    <InsightCard
+                      observation={observation}
+                      key={observation.id}
+                    />
+                  ))}
+                </div>
+              </details>
+            )}
+          </>
+        ) : (
+          <div className="panel records-empty">
+            <CategoryBadge category="insufficient" />
+            <h3>No interpretable observation yet</h3>
+            <p>
+              Usable current readings, recent submissions and at least{" "}
+              {minBaseline} earlier distinct mission dates are needed for
+              baseline comparisons. Missing values are not invented.
+            </p>
+            <Button asChild variant="outline">
+              <Link href="/daily-health-check">Record a check-in</Link>
+            </Button>
+          </div>
+        )}
+      </section>
+    </>
+  );
+  return (
+    <div className="guided-insights" data-record-count={selectedRecords.length}>
       <section
         className="panel insight-controls"
         aria-label="Analysis dataset and settings"
@@ -374,279 +475,196 @@ export function HealthInsights() {
           </label>
         )}
       </section>
+      <InsightsStart
+        report={report}
+        count={selectedRecords.length}
+        preview={selection !== "saved"}
+      />
       {urgent && <InsightCard observation={report.observations[0]} />}
-      <section
-        className="panel mission-analysis-context"
-        aria-label="Simulated mission context"
-      >
-        <div>
-          <Orbit size={19} />
-          <h2>Fictional mission context</h2>
-        </div>
-        <dl>
-          <div>
-            <dt>Mission / scenario day</dt>
-            <dd>
-              {mission.name} · day {mission.day}
-            </dd>
-          </div>
-          <div>
-            <dt>Habitat / crew</dt>
-            <dd>
-              {mission.station} · {mission.crewId}
-              {scenario ? " · isolated scenario profile" : ""}
-            </dd>
-          </div>
-          <div>
-            <dt>
-              <Radio size={13} />
-              Communication simulation
-            </dt>
-            <dd>Nominal link · simulation only</dd>
-          </div>
-          <div>
-            <dt>Selected monitoring priorities</dt>
-            <dd>Sleep · cardiovascular records · activity & fatigue</dd>
-          </div>
-        </dl>
-        <p>
-          All mission fields are simulated, with no spacecraft telemetry. They
-          provide context and do not modify the statistical rules or medical
-          interpretations.
-        </p>
-      </section>
-      <section aria-labelledby="reliability-title">
-        <div className="section-heading">
-          <div>
-            <h2 id="reliability-title">Data completeness & limitations</h2>
-            <p>
-              Analysis as of{" "}
-              {report.validClock
-                ? displayTimestamp(report.asOf)
-                : "an invalid clock — statistics withheld"}
-              . Availability does not certify accuracy.
-            </p>
-          </div>
-        </div>
-        <div className="insight-quality-grid">
-          <article className="panel">
-            <span>Seven-day availability</span>
-            <strong>
-              {report.quality.completeCells7} / {report.quality.expectedCells7}
-            </strong>
-            <p>
-              Indicator-day cells recorded · {report.quality.missingDays7}{" "}
-              mission dates without a check-in
-            </p>
-          </article>
-          <article className="panel">
-            <span>Latest record freshness</span>
-            <strong>
-              {report.stale ? "Absent / stale" : "Within prototype window"}
-            </strong>
-            <p>
-              {report.submissionAgeHours === null
-                ? "No usable record"
-                : `${report.submissionAgeHours.toFixed(1)} hours since submission · mission date ${report.missionAgeDays} days ago`}
-            </p>
-          </article>
-          <article className="panel">
-            <span>Evidence currently used</span>
-            <strong>{distinctEvidence} records</strong>
-            <p>
-              {report.quality.invalid} invalid · {report.quality.future} future
-              · {report.quality.conflicting} conflicting IDs excluded
-            </p>
-          </article>
-        </div>
-        <details className="panel methodology-details">
-          <summary>How records are selected and checked</summary>
-          <ul>
-            {report.limitations.map((note) => (
-              <li key={note}>{note}</li>
-            ))}
-            <li>
-              {report.quality.sameDay} earlier same-day records are not separate
-              baseline samples; {report.quality.duplicate} repeated IDs were
-              identified.
-            </li>
-            <li>
-              {report.quality.otherProfile} records from other profiles and{" "}
-              {report.quality.otherSource} records from a different
-              storage/source cohort were excluded.
-            </li>
-            <li>
-              Freshness is a prototype data-quality rule: at most{" "}
-              {report.configuration.freshnessHours} hours since submission and a
-              mission date less than two calendar days old. It is not a clinical
-              standard.
-            </li>
-            <li>
-              No physiological reference-range screening, emergency detection
-              from notes, diagnoses, treatment recommendations or NASA
-              endorsement is implied.
-            </li>
-          </ul>
-        </details>
-      </section>
-      <section aria-labelledby="latest-observations-title">
-        <div className="section-heading">
-          <div>
-            <h2 id="latest-observations-title">
-              <Sparkles size={16} />
-              Latest health observations
-            </h2>
-            <p>
-              Descriptive software comparisons. Select an observation’s evidence
-              to inspect its records and exact rule.
-            </p>
-          </div>
-        </div>
-        {urgent ? (
-          <div className="panel records-empty">
-            <h3>Statistical observation list withheld</h3>
-            <p>
-              The explicit urgent report above takes priority over all baseline
-              categories. No automated symptom-resolution or approved clinical
-              protocol is configured.
-            </p>
-          </div>
-        ) : report.observations.length ? (
-          <>
-            <div className="insights-observation-grid">
-              {visibleObservations.map((observation) => (
-                <InsightCard observation={observation} key={observation.id} />
-              ))}
-            </div>
-            {otherObservations.length > 0 && (
-              <details className="panel methodology-details">
-                <summary>
-                  Expand {otherObservations.length} additional stable
-                  statistical comparisons
-                </summary>
-                <p>
-                  These comparisons did not meet the prototype change rule. They
-                  do not establish health or safety.
-                </p>
-                <div className="insights-observation-grid">
-                  {otherObservations.map((observation) => (
-                    <InsightCard
-                      observation={observation}
-                      key={observation.id}
-                    />
-                  ))}
-                </div>
-              </details>
-            )}
-          </>
-        ) : (
-          <div className="panel records-empty">
-            <CategoryBadge category="insufficient" />
-            <h3>No interpretable observation yet</h3>
-            <p>
-              Usable current readings, recent submissions and at least{" "}
-              {minBaseline} earlier distinct mission dates are needed for
-              baseline comparisons. Missing values are not invented.
-            </p>
-            <Button asChild variant="outline">
-              <Link href="/daily-health-check">Record a check-in</Link>
-            </Button>
-          </div>
-        )}
-      </section>
-      <BaselineComparisons report={report} />
-      <div
-        className="panel analytics-controls"
-        aria-label="Visual analytics settings"
-      >
-        <div className="form-field">
-          <label htmlFor="insight-indicator">Trend indicator</label>
-          <select
-            id="insight-indicator"
-            value={indicator}
-            onChange={(event) =>
-              setIndicator(event.target.value as NumericIndicator)
-            }
-          >
-            {numericIndicators.map((key) => (
-              <option value={key} key={key}>
-                {indicatorConfig[key].label} ({indicatorConfig[key].unit})
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-field">
-          <label htmlFor="insight-days">Analytics time range</label>
-          <select
-            id="insight-days"
-            value={days}
-            onChange={(event) => setDays(Number(event.target.value) as 7 | 30)}
-          >
-            <option value={7}>Last 7 mission dates</option>
-            <option value={30}>Last 30 mission dates</option>
-          </select>
-        </div>
-        <p>
-          Missing dates remain visible as gaps. Mood stays categorical in the
-          baseline table; it is not assigned an invented numeric score.
-        </p>
-      </div>
-      {report.validClock && (
-        <InsightsAnalytics
-          report={report}
-          indicator={indicator}
-          days={days}
-          timeline={timeline}
-        />
+      {selectedRecords.length > 1 && (
+        <>
+          {analytics}
+          <InsightsComparison report={report} />
+          {observations}
+        </>
       )}
       <IndicatorGuide />
-      <section aria-labelledby="scientific-context-title">
-        <div className="section-heading">
+      <details className="panel insights-advanced">
+        <summary>Advanced Analysis</summary>
+        <p>
+          Exact statistics, assumptions, data availability and research detail.
+          Original records are retained; no missing readings are invented.
+        </p>
+        <section
+          className="panel mission-analysis-context"
+          aria-label="Simulated mission context"
+        >
           <div>
-            <h2 id="scientific-context-title">
-              <ShieldCheck size={17} />
-              NASA research context & sources
-            </h2>
-            <p>
-              Educational facts published by NASA. These sources do not validate
-              MissionPulse’s comparison thresholds, escalation logic or medical
-              accuracy.
-            </p>
+            <Orbit size={19} />
+            <h2>Fictional mission context</h2>
           </div>
-        </div>
-        <div className="reference-grid">
-          {scientificReferences.map((reference) => (
-            <article
-              className="panel reference-card"
-              id={`reference-${reference.id}`}
-              key={reference.id}
-            >
-              <p className="eyebrow">EDUCATIONAL CONTEXT</p>
-              <h3>{reference.topic}</h3>
-              <p>{reference.explanation}</p>
-              <dl>
-                <div>
-                  <dt>Relevant recorded context</dt>
-                  <dd>{reference.measurements.join(" · ")}</dd>
-                </div>
-                <div>
-                  <dt>Limitations</dt>
-                  <dd>{reference.limitations}</dd>
-                </div>
-              </dl>
-              <a href={reference.url} target="_blank" rel="noreferrer">
-                {reference.title}
-                <ArrowUpRight size={14} />
-                <span className="sr-only">(opens in a new tab)</span>
-              </a>
-              <small>
-                {reference.organization} · link/content checked{" "}
-                {displayDate(reference.verifiedOn)}
-              </small>
+          <dl>
+            <div>
+              <dt>Mission / scenario day</dt>
+              <dd>
+                {mission.name} · day {mission.day}
+              </dd>
+            </div>
+            <div>
+              <dt>Habitat / crew</dt>
+              <dd>
+                {mission.station} · {mission.crewId}
+                {scenario ? " · isolated scenario profile" : ""}
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <Radio size={13} />
+                Communication simulation
+              </dt>
+              <dd>Nominal link · simulation only</dd>
+            </div>
+            <div>
+              <dt>Selected monitoring priorities</dt>
+              <dd>Sleep · cardiovascular records · activity & fatigue</dd>
+            </div>
+          </dl>
+          <p>
+            All mission fields are simulated, with no spacecraft telemetry. They
+            provide context and do not modify the statistical rules or medical
+            interpretations.
+          </p>
+        </section>
+        <section aria-labelledby="reliability-title">
+          <div className="section-heading">
+            <div>
+              <h2 id="reliability-title">Data completeness & limitations</h2>
+              <p>
+                Analysis as of{" "}
+                {report.validClock
+                  ? displayTimestamp(report.asOf)
+                  : "an invalid clock — statistics withheld"}
+                . Availability does not certify accuracy.
+              </p>
+            </div>
+          </div>
+          <div className="insight-quality-grid">
+            <article className="panel">
+              <span>Seven-day availability</span>
+              <strong>
+                {report.quality.completeCells7} /{" "}
+                {report.quality.expectedCells7}
+              </strong>
+              <p>
+                Indicator-day cells recorded · {report.quality.missingDays7}{" "}
+                mission dates without a check-in
+              </p>
             </article>
-          ))}
-        </div>
-      </section>
-    </>
+            <article className="panel">
+              <span>Latest record freshness</span>
+              <strong>
+                {report.stale ? "Absent / stale" : "Within prototype window"}
+              </strong>
+              <p>
+                {report.submissionAgeHours === null
+                  ? "No usable record"
+                  : `${report.submissionAgeHours.toFixed(1)} hours since submission · mission date ${report.missionAgeDays} days ago`}
+              </p>
+            </article>
+            <article className="panel">
+              <span>Evidence currently used</span>
+              <strong>{distinctEvidence} records</strong>
+              <p>
+                {report.quality.invalid} invalid · {report.quality.future}{" "}
+                future · {report.quality.conflicting} conflicting IDs excluded
+              </p>
+            </article>
+          </div>
+          <details className="panel methodology-details">
+            <summary>How records are selected and checked</summary>
+            <ul>
+              {report.limitations.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+              <li>
+                {report.quality.sameDay} earlier same-day records are not
+                separate baseline samples; {report.quality.duplicate} repeated
+                IDs were identified.
+              </li>
+              <li>
+                {report.quality.otherProfile} records from other profiles and{" "}
+                {report.quality.otherSource} records from a different
+                storage/source cohort were excluded.
+              </li>
+              <li>
+                Freshness is a prototype data-quality rule: at most{" "}
+                {report.configuration.freshnessHours} hours since submission and
+                a mission date less than two calendar days old. It is not a
+                clinical standard.
+              </li>
+              <li>
+                No physiological reference-range screening, emergency detection
+                from notes, diagnoses, treatment recommendations or NASA
+                endorsement is implied.
+              </li>
+            </ul>
+          </details>
+        </section>
+        <BaselineComparisons report={report} />
+        {selectedRecords.length <= 1 && (
+          <>
+            {analytics}
+            {observations}
+          </>
+        )}
+        <section aria-labelledby="scientific-context-title">
+          <div className="section-heading">
+            <div>
+              <h2 id="scientific-context-title">
+                <ShieldCheck size={17} />
+                NASA research context & sources
+              </h2>
+              <p>
+                Educational facts published by NASA. These sources do not
+                validate MissionPulse’s comparison thresholds, escalation logic
+                or medical accuracy.
+              </p>
+            </div>
+          </div>
+          <div className="reference-grid">
+            {scientificReferences.map((reference) => (
+              <article
+                className="panel reference-card"
+                id={`reference-${reference.id}`}
+                key={reference.id}
+              >
+                <p className="eyebrow">EDUCATIONAL CONTEXT</p>
+                <h3>{reference.topic}</h3>
+                <p>{reference.explanation}</p>
+                <dl>
+                  <div>
+                    <dt>Relevant recorded context</dt>
+                    <dd>{reference.measurements.join(" · ")}</dd>
+                  </div>
+                  <div>
+                    <dt>Limitations</dt>
+                    <dd>{reference.limitations}</dd>
+                  </div>
+                </dl>
+                <a href={reference.url} target="_blank" rel="noreferrer">
+                  {reference.title}
+                  <ArrowUpRight size={14} />
+                  <span className="sr-only">(opens in a new tab)</span>
+                </a>
+                <small>
+                  {reference.organization} · link/content checked{" "}
+                  {displayDate(reference.verifiedOn)}
+                </small>
+              </article>
+            ))}
+          </div>
+        </section>
+      </details>
+    </div>
   );
 }

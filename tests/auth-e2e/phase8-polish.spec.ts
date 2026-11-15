@@ -148,10 +148,14 @@ test("compact overview preserves actions and one-record charts at desktop, mobil
   });
   await page.goto("/astronaut/health-insights");
   await page
-    .getByRole("link", { name: "Learn what your measurements mean" })
+    .getByRole("link", { name: "What Do My Measurements Mean?", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Understand Your Health", exact: true }),
+    page.getByRole("heading", {
+      name: "Understand Your Health",
+      level: 2,
+      exact: true,
+    }),
   ).toBeInViewport();
   expect(await page.evaluate(() => indexedDB.databases())).toEqual([]);
 });

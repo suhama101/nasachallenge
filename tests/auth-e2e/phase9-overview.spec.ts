@@ -46,7 +46,7 @@ test("overview has one hero and no duplicate panels, with working primary and se
       "Daily Health Check",
     ],
     ["View My Records", "/astronaut/health-history", "Health History"],
-    ["See Health Trends", "/astronaut/health-insights", "Health Insights"],
+    ["See Health Trends", "/astronaut/health-insights", "Understand Your Health"],
   ]) {
     const card = page.locator(".journey-card").filter({ hasText: action });
     await expect(card).toHaveAttribute("href", route);

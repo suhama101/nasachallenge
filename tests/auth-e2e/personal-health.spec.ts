@@ -330,6 +330,7 @@ test("personal cloud mock: owned baselines, missing oxygen, research links and u
     page.getByRole("heading", { name: "Welcome, Fixture B" }),
   ).toBeVisible();
   await page.goto("/astronaut/health-insights");
+  await page.locator(".insights-advanced > summary").click();
   await expect(page.locator(".baseline-table tbody tr").first()).toContainText(
     "70 bpm",
   );

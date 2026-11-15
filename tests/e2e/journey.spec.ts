@@ -175,6 +175,7 @@ test("complete astronaut journey preserves saved data and selected scenarios acr
     ).toHaveValue("heartRate");
   }
   expect(await storedRows(page)).toEqual(saved);
+  await page.locator(".insights-advanced > summary").click();
   await page
     .getByText("Indicator calculations, assumptions & all baseline values", {
       exact: true,

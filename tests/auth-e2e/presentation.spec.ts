@@ -28,7 +28,7 @@ test("personal overview action cards keep navigation scoped to the account", asy
       "Daily Health Check",
     ],
     ["View My Records", "/astronaut/health-history", "Health History"],
-    ["See Health Trends", "/astronaut/health-insights", "Health Insights"],
+    ["See Health Trends", "/astronaut/health-insights", "Understand Your Health"],
   ]) {
     await page.goto("/astronaut");
     const card = page.locator(".journey-card").filter({ hasText: label });
