@@ -4,6 +4,13 @@ import { normalizeQuestion } from "./intent";
 const spellings: Record<string, string> = {
   r: "are",
   u: "you",
+  arewe: "are we",
+  areyou: "are you",
+  canwe: "can we",
+  canyou: "can you",
+  isthis: "is this",
+  isit: "is it",
+  withme: "with me",
   chating: "chatting",
   chattng: "chatting",
   chattingg: "chatting",
@@ -49,14 +56,15 @@ export function assistantFaq(question: string, liveAvailable?: boolean) {
     answer =
       "Did you mean chatting? I can answer supported space-health questions using curated responses. If you meant chanting, please clarify what you want to know. This reply is local, not live generative AI.";
   } else if (
-    /^(?:(?:are we|are you|is this|is it) (?:doing |having )?(?:a )?(?:live |real time )?(?:chat|chatting|conversation)|(?:is (?:live ai|groq) (?:available|enabled)|are you (?:live|online)|can (?:we|you) (?:chat|talk)(?: with (?:me|you))?(?: live)?))$/.test(
+    /^(?:(?:are we|are you|is this|is it) (?:doing |having )?(?:a )?(?:live |real time )?(?:chat|chatting|conversation)(?: live| in real time| with (?:me|you|us)){0,2}(?: (?:now|right now))?|(?:is (?:live ai|groq) (?:available|enabled)|are you (?:live|online)|can (?:we|you) (?:chat|talk)(?: with (?:me|you))?(?: live)?))$/.test(
       text,
     )
   ) {
     id = "live";
-    answer = `You can exchange messages here, but this is a bounded educational assistant, not unrestricted live AI chatting. ${mode}`;
+    answer =
+      "You are chatting with MissionPulse's local research assistant, not unrestricted live generative AI. I provide curated NASA/CSA educational answers and can review selected demo measurements with your permission.";
   } else if (
-    /^(?:are you (?:really )?(?:an? )?(?:ai|artificial intelligence|chatbot|bot|human)(?: assistant)?|who are you|what are you)$/.test(
+    /^(?:are you (?:really )?(?:an? )?(?:real )?(?:ai|artificial intelligence|chatbot|bot|human)(?: assistant)?|who are you|what are you)$/.test(
       text,
     )
   ) {

@@ -53,6 +53,15 @@ describe("deterministic assistant introduction FAQ", () => {
     ["Do you have acess to my helth recods?", "faq-privacy"],
     ["Can you see my personal cloud health records?", "faq-privacy"],
     ["Where do your sources come from?", "faq-sources"],
+    ["Are you live chatting?", "faq-live"],
+    ["Are you live chating with me?", "faq-live"],
+    ["Are we chatting live?", "faq-live"],
+    ["Are we doing live chatting?", "faq-live"],
+    ["arewe doing live chating", "faq-live"],
+    ["Are you a real AI?", "faq-identity"],
+    ["What can you do?", "faq-capabilities"],
+    ["AREYOU LIVE CHATING WITHME?!", "faq-live"],
+    ["Are we chatting live with you right now?", "faq-live"],
   ])("answers %s locally", (question, id) => {
     const answer = ask(question);
     expect(answer.sections[0].id).toBe(id);
@@ -63,15 +72,12 @@ describe("deterministic assistant introduction FAQ", () => {
     );
   });
   it("describes availability without pretending that a FAQ reply used Groq", () => {
-    expect(ask("Are we doing live chatting?", true).sections[0].text).toContain(
-      "currently available by choice",
-    );
-    expect(
-      ask("Are we doing live chatting?", false).sections[0].text,
-    ).toContain("currently unavailable");
-    expect(ask("Are we doing live chatting?").sections[0].text).toContain(
-      "control on this page",
-    );
+    for (const available of [true, false, undefined])
+      expect(
+        ask("Are we doing live chatting?", available).sections[0].text,
+      ).toBe(
+        "You are chatting with MissionPulse's local research assistant, not unrestricted live generative AI. I provide curated NASA/CSA educational answers and can review selected demo measurements with your permission.",
+      );
     expect(ask("Are you an AI?", true).sections[0].text).toContain(
       "local curated response, not live generative AI",
     );
@@ -116,6 +122,10 @@ describe("deterministic assistant introduction FAQ", () => {
     "How has my sleep changed over seven days?",
     "Can you answer my questions about dizziness?",
     "Do you have access to another astronaut's records?",
+    "Are you live chatting with me about my sleep?",
+    "Are we chatting live about cardiovascular research?",
+    "What does NASA say about live cell imaging?",
+    "Are you a real AI that can diagnose my symptoms?",
   ])(
     "does not intercept health or private-profile requests: %s",
     (question) => {
@@ -155,7 +165,7 @@ describe("deterministic assistant introduction FAQ", () => {
       expect(complete).not.toHaveBeenCalled();
       expect(budget).not.toHaveBeenCalled();
       expect(answer.sections[0].text).toContain(
-        configured ? "currently available by choice" : "currently unavailable",
+        "local research assistant, not unrestricted live generative AI",
       );
     },
   );

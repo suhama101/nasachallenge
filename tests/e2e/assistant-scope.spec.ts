@@ -41,7 +41,9 @@ test("ambiguous chat wording asks for confirmation and unsupported medical quest
     }),
   ).not.toBeChecked();
   answer = await send("yes");
-  await expect(answer).toContainText("You can exchange messages here");
+  await expect(answer).toContainText(
+    "local research assistant, not unrestricted live generative AI",
+  );
   answer = await send("What can you help me with?");
   await expect(answer).toContainText("explicit per-message consent");
   answer = await send("Can sleep cure diabetes?");
