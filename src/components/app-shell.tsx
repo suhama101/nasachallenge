@@ -12,7 +12,6 @@ import {
   ChartNoAxesCombined,
   BookOpen,
   Bot,
-  UserRound,
   Menu,
   X,
   Orbit,
@@ -42,7 +41,6 @@ const navigation = [
     icon: BookOpen,
   },
   { href: "/ai-health-assistant", label: "AI Health Assistant", icon: Bot },
-  { href: "/crew-profile", label: "Crew Profile", icon: UserRound },
 ];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -172,18 +170,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               PHASE 04 <span>•</span> LOCAL DEMO
             </span>
           </div>
-          <Link
-            className="crew-link"
-            href="/crew-profile"
-            onClick={() => setOpen(false)}
-          >
+          <div className="crew-link">
             <span className="avatar">{mission.initials}</span>
             <span>
               <strong>{mission.astronaut}</strong>
               <small>{mission.role}</small>
             </span>
-            <ChevronRight size={16} />
-          </Link>
+          </div>
         </div>
       </aside>
       <div className="app-main">
@@ -215,13 +208,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="header-date">
               {today ? displayDate(today) : "Mission calendar · UTC"}
             </span>
-            <Link
-              href="/crew-profile"
+            <span
               className="avatar small"
-              aria-label="AM View crew profile for Alex Morgan"
+              aria-label="Fictional demo crew initials"
             >
               {mission.initials}
-            </Link>
+            </span>
           </div>
         </header>
         <main id="main-content" tabIndex={-1}>

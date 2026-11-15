@@ -68,10 +68,13 @@ const chartConfig = {
   },
 };
 const tooltipStyle = {
-  background: "#0e1c34",
-  border: "1px solid #657a98",
+  background: "#14243b",
+  border: "1px solid #8aa2c2",
   borderRadius: 12,
   color: "#eef4ff",
+  fontSize: 12,
+  lineHeight: 1.6,
+  boxShadow: "0 8px 24px #050c1b66",
 };
 export function TrendChart({
   records,
@@ -109,7 +112,7 @@ export function TrendChart({
         dataKey="label"
         tickLine={false}
         axisLine={false}
-        tick={{ fill: "#a7b6ca", fontSize: 10 }}
+        tick={{ fill: "#c4d3e7", fontSize: 11 }}
         minTickGap={25}
         dy={8}
       />
@@ -123,7 +126,7 @@ export function TrendChart({
         }
         axisLine={false}
         tickLine={false}
-        tick={{ fill: "#a7b6ca", fontSize: 10 }}
+        tick={{ fill: "#c4d3e7", fontSize: 11 }}
         width={43}
       />
       <Tooltip
@@ -142,7 +145,11 @@ export function TrendChart({
     </>
   );
   return (
-    <article className="panel chart-panel" data-indicator={kind}>
+    <article
+      className="panel chart-panel"
+      data-indicator={kind}
+      style={{ borderTopColor: config.color }}
+    >
       <div className="chart-heading">
         <h3>
           <Icon size={16} style={{ color: config.color }} />
@@ -187,17 +194,29 @@ export function TrendChart({
                 <Line
                   dataKey="systolic"
                   stroke={chartPalette.systolic}
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
+                  strokeWidth={3}
+                  dot={{
+                    r: 3.5,
+                    fill: "#14243b",
+                    stroke: chartPalette.systolic,
+                    strokeWidth: 2,
+                  }}
+                  activeDot={{ r: 5, stroke: "#eef4ff", strokeWidth: 2 }}
                   connectNulls={false}
                   isAnimationActive={false}
                 />
                 <Line
                   dataKey="diastolic"
                   stroke={chartPalette.diastolic}
-                  strokeWidth={2}
+                  strokeWidth={3}
                   strokeDasharray="5 4"
-                  dot={{ r: 3 }}
+                  dot={{
+                    r: 3.5,
+                    fill: "#14243b",
+                    stroke: chartPalette.diastolic,
+                    strokeWidth: 2,
+                  }}
+                  activeDot={{ r: 5, stroke: "#eef4ff", strokeWidth: 2 }}
                   connectNulls={false}
                   isAnimationActive={false}
                 />
@@ -213,7 +232,7 @@ export function TrendChart({
                     <stop
                       offset="0%"
                       stopColor={config.color}
-                      stopOpacity={0.23}
+                      stopOpacity={0.28}
                     />
                     <stop
                       offset="100%"
@@ -226,9 +245,15 @@ export function TrendChart({
                   type="linear"
                   dataKey={kind}
                   stroke={config.color}
-                  strokeWidth={2.5}
+                  strokeWidth={3}
                   fill={`url(#${id})`}
-                  dot={{ r: 3, strokeWidth: 2 }}
+                  dot={{
+                    r: 3.5,
+                    fill: "#14243b",
+                    stroke: config.color,
+                    strokeWidth: 2,
+                  }}
+                  activeDot={{ r: 5, stroke: "#eef4ff", strokeWidth: 2 }}
                   connectNulls={false}
                   isAnimationActive={false}
                 />
@@ -253,7 +278,7 @@ export function TrendChart({
           ? "Manually entered personal records · mission dates (UTC)"
           : "Synthetic and user-entered demo records · mission dates (UTC)"}
         {kind === "bloodPressure" &&
-          " · Solid blue: systolic / Dashed violet: diastolic"}
+          " · Solid indigo: systolic / Dashed pink: diastolic"}
       </p>
       {kind === "spo2" && records.some((row) => spo2NeedsReview(row.spo2)) && (
         <p className="data-review-note">
@@ -337,7 +362,8 @@ export function HealthCharts({
             {full
               ? "Trends follow the selected mission-date filter."
               : "Mission dates through today (UTC). Each point is a check-in."}{" "}
-            Missing values are never filled in. Colors identify measurements, not medical risk.
+            Missing values are never filled in. Colors identify measurements,
+            not medical risk.
           </p>
         </div>
         {!full && (

@@ -116,7 +116,14 @@ test("compact overview preserves actions and one-record charts at desktop, mobil
     "does not establish a trend",
   );
   const curve = heart.locator(".recharts-area-curve");
+  await expect(heart.locator(".recharts-area-dot")).toHaveAttribute("r", "3.5");
+  await expect(heart.locator(".recharts-area-dot")).toHaveAttribute(
+    "stroke",
+    "#ff9eaa",
+  );
   if (await curve.count()) {
+    await expect(curve).toHaveAttribute("stroke", "#ff9eaa");
+    await expect(curve).toHaveAttribute("stroke-width", "3");
     const xValues = await curve.evaluateAll((nodes) =>
       nodes.flatMap((node) =>
         [...(node.getAttribute("d") || "").matchAll(/[ML]([\d.-]+),/g)].map(
@@ -137,7 +144,15 @@ test("compact overview preserves actions and one-record charts at desktop, mobil
   await expect(heart.getByRole("table")).toContainText("79 bpm");
   const pressure = page.locator('.chart-panel[data-indicator="bloodPressure"]');
   await expect(pressure).toContainText(
-    "Solid blue: systolic / Dashed violet: diastolic",
+    "Solid indigo: systolic / Dashed pink: diastolic",
+  );
+  await expect(pressure.locator(".recharts-line-dot").nth(0)).toHaveAttribute(
+    "stroke",
+    "#9dadff",
+  );
+  await expect(pressure.locator(".recharts-line-dot").nth(1)).toHaveAttribute(
+    "stroke",
+    "#f4a6d7",
   );
   await expect(
     page.locator('.chart-panel[data-indicator="spo2"] .chart-empty'),

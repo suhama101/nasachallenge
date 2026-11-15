@@ -46,7 +46,9 @@ test("personal cloud mock: validation, optional nulls, duplicate guard, reload, 
   request,
 }, testInfo) => {
   await login(page);
-  await expect(page.locator(".overview-status")).toContainText("0 saved check-ins");
+  await expect(page.locator(".overview-status")).toContainText(
+    "0 saved check-ins",
+  );
   await expect(page.locator(".records-empty")).toHaveCount(0);
   await page.goto("/astronaut/health-history");
   await expect(
@@ -276,7 +278,9 @@ test("personal cloud mock: another account and Explore Demo never receive privat
     .getByLabel("Mission environment", { exact: false })
     .selectOption("other");
   await a.getByRole("button", { name: "Save profile and continue" }).click();
-  await expect(a.locator(".overview-status")).toContainText("0 saved check-ins");
+  await expect(a.locator(".overview-status")).toContainText(
+    "0 saved check-ins",
+  );
   await expect(a.locator(".records-empty")).toHaveCount(0);
   await a.goto(
     "/astronaut/health-history?profileId=22222222-2222-4222-8222-222222222222",
@@ -330,6 +334,18 @@ test("personal cloud mock: owned baselines, missing oxygen, research links and u
     page.getByRole("heading", { name: "Welcome, Fixture B" }),
   ).toBeVisible();
   await page.goto("/astronaut/health-insights");
+  const trend = page.getByRole("img", {
+    name: /30-day Resting heart rate trend/,
+  });
+  await expect(trend.locator(".recharts-line-curve")).toHaveAttribute(
+    "stroke",
+    "#ff9eaa",
+  );
+  await expect(trend.locator(".recharts-line-curve")).toHaveAttribute(
+    "stroke-width",
+    "3",
+  );
+  await expect(trend.locator(".recharts-line-dot")).toHaveCount(6);
   await page.locator(".insights-advanced > summary").click();
   await expect(page.locator(".baseline-table tbody tr").first()).toContainText(
     "70 bpm",

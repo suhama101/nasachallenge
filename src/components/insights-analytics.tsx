@@ -31,13 +31,15 @@ import {
   spo2Label,
 } from "@/lib/health/integrity";
 const tooltipStyle = {
-  background: "#0e1c34",
-  border: "1px solid #657a98",
+  background: "#14243b",
+  border: "1px solid #8aa2c2",
   borderRadius: 12,
   color: "#eef4ff",
-  fontSize: 11,
+  fontSize: 12,
+  lineHeight: 1.6,
+  boxShadow: "0 8px 24px #050c1b66",
 };
-const tickStyle = { fill: "#b2c4d7", fontSize: 10 };
+const tickStyle = { fill: "#c4d3e7", fontSize: 11 };
 
 export function InsightsAnalytics({
   report,
@@ -104,7 +106,10 @@ export function InsightsAnalytics({
       </div>
       <div className="charts-grid insights-charts">
         {(!guided || comparison.length > 0) && (
-          <article className="panel chart-panel">
+          <article
+            className="panel chart-panel"
+            style={{ borderTopColor: chartPalette[indicator] }}
+          >
             <div className="chart-heading">
               <h3>Current vs personal baseline</h3>
               <span>{config.unit}</span>
@@ -179,7 +184,10 @@ export function InsightsAnalytics({
             )}
           </article>
         )}
-        <article className="panel chart-panel">
+        <article
+          className="panel chart-panel"
+          style={{ borderTopColor: chartPalette[indicator] }}
+        >
           <div className="chart-heading">
             <h3>
               {config.label} · {days}-day trend
@@ -237,8 +245,14 @@ export function InsightsAnalytics({
                     dataKey="value"
                     name={config.label}
                     stroke={chartPalette[indicator]}
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
+                    strokeWidth={3}
+                    dot={{
+                      r: 3.5,
+                      fill: "#14243b",
+                      stroke: chartPalette[indicator],
+                      strokeWidth: 2,
+                    }}
+                    activeDot={{ r: 5, stroke: "#eef4ff", strokeWidth: 2 }}
                     connectNulls={false}
                     isAnimationActive={false}
                   />
@@ -249,7 +263,10 @@ export function InsightsAnalytics({
             <div className="chart-empty">No values in the selected period.</div>
           )}
         </article>
-        <article className="panel chart-panel">
+        <article
+          className="panel chart-panel"
+          style={{ borderTopColor: chartPalette.sleep }}
+        >
           <div className="chart-heading">
             <h3>Sleep & fatigue in context</h3>
             <span>Separate units</span>
@@ -304,8 +321,14 @@ export function InsightsAnalytics({
                     name="Sleep (hours, left)"
                     dataKey="sleep"
                     stroke={chartPalette.sleep}
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
+                    strokeWidth={3}
+                    dot={{
+                      r: 3.5,
+                      fill: "#14243b",
+                      stroke: chartPalette.sleep,
+                      strokeWidth: 2,
+                    }}
+                    activeDot={{ r: 5, stroke: "#eef4ff", strokeWidth: 2 }}
                     connectNulls={false}
                     isAnimationActive={false}
                   />
@@ -314,9 +337,15 @@ export function InsightsAnalytics({
                     name="Fatigue (/ 10, right)"
                     dataKey="fatigue"
                     stroke={chartPalette.fatigue}
-                    strokeWidth={2}
+                    strokeWidth={3}
                     strokeDasharray="5 4"
-                    dot={{ r: 3 }}
+                    dot={{
+                      r: 3.5,
+                      fill: "#14243b",
+                      stroke: chartPalette.fatigue,
+                      strokeWidth: 2,
+                    }}
+                    activeDot={{ r: 5, stroke: "#eef4ff", strokeWidth: 2 }}
                     connectNulls={false}
                     isAnimationActive={false}
                   />
@@ -336,7 +365,10 @@ export function InsightsAnalytics({
           timeline
         </summary>
         <div className="charts-grid insights-charts">
-          <article className="panel chart-panel">
+          <article
+            className="panel chart-panel"
+            style={{ borderTopColor: chartPalette.spo2 }}
+          >
             <div className="chart-heading">
               <h3>Seven-day completeness</h3>
               <span>Days / 7</span>
@@ -502,7 +534,7 @@ export function InsightsAnalytics({
                 <XAxis dataKey="label" tick={tickStyle} minTickGap={30} />
                 <YAxis allowDecimals={false} tick={tickStyle} width={30} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Legend wrapperStyle={{ fontSize: 10 }} />
+                <Legend wrapperStyle={{ fontSize: 12, lineHeight: 1.8 }} />
                 <Bar
                   dataKey="stable"
                   name="Stable comparison"

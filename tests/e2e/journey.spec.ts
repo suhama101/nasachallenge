@@ -247,7 +247,7 @@ test("keyboard navigation, mobile menu, chart alternatives and demo entry are op
   await expect(
     page.locator(".chart-table").first().getByRole("table"),
   ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "AM View crew profile for Alex Morgan" }),
-  ).toBeVisible();
+  await expect(page.locator('a[href="/crew-profile"]')).toHaveCount(0);
+  await expect(page.locator(".header-right .avatar")).toBeVisible();
+  await expect(page.locator(".header-right .avatar")).toHaveText("AM");
 });
