@@ -64,6 +64,21 @@ test("guided Insights: zero, one, two and five-earlier-days states preserve reco
     });
     await login(page);
     await expect(page.locator(".indicator-lesson")).toHaveCount(11);
+    const medical = page.locator(".crew-medical-guidance");
+    await expect(medical).toBeVisible();
+    await expect(medical).toContainText("not diagnoses");
+    await expect(medical).toContainText(
+      "does not provide emergency assessment",
+    );
+    const support = medical.locator(".crew-support-details > summary");
+    await support.focus();
+    await page.keyboard.press("Enter");
+    await expect(medical.locator(".crew-support-details")).toContainText(
+      "no automatic clinical thresholds",
+    );
+    await support.press("Enter");
+    await expect(page.locator(".crew-consideration")).toHaveCount(5);
+    await page.evaluate(() => window.scrollTo(0, 0));
     if (!captureBefore) {
       await expect(
         page.getByRole("heading", { name: "Understand Your Health", level: 1 }),

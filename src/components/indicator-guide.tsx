@@ -8,6 +8,7 @@ import {
   Thermometer,
   Waves,
 } from "lucide-react";
+import { CrewHealthGuidance } from "./crew-health-guidance";
 
 // Static educational presentation only: no record values, thresholds or analysis.
 const sources = {
@@ -243,7 +244,8 @@ export function IndicatorGuide() {
         recording guidance is separate from the labeled NASA facts; none of it
         is a flight medical protocol or an individualized treatment plan.
       </p>
-      <div className="indicator-grid">
+      <CrewHealthGuidance />
+      <div className="indicator-grid" id="measurement-topics">
         {lessons.map(
           ({
             id,
@@ -353,12 +355,6 @@ export function IndicatorGuide() {
           numeric cutoff or NASA emergency procedure is supplied here.
         </p>
       </details>
-      <p className="indicator-emergency">
-        <strong>Reported an urgent symptom?</strong> Follow your established
-        mission medical procedures or contact qualified medical support. This
-        prototype does not provide emergency assessment, monitor an urgent
-        report for resolution, or dispatch a response.
-      </p>
     </section>
   );
 }

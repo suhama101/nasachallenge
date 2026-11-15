@@ -492,6 +492,122 @@
   color: #f0dbd0;
   line-height: 1.8;
 }
+
+/* Shared static education; no record-dependent assessment or new workflow. */
+.crew-health-guidance {
+  margin: 22px 0;
+}
+.crew-medical-guidance,
+.crew-prevention {
+  padding: 18px 20px;
+  border-radius: 12px;
+}
+.crew-medical-guidance {
+  border-left: 3px solid #9ad7c4;
+}
+.crew-health-guidance h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  line-height: 1.5;
+}
+.crew-health-guidance h3 svg {
+  color: #a7e8d8;
+  flex-shrink: 0;
+}
+.crew-health-guidance p,
+.crew-health-guidance dd {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #cad9e9;
+  margin-top: 10px;
+}
+.crew-medical-guidance .indicator-emergency {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 10px 0;
+  color: #f0dbd0;
+}
+.crew-health-guidance summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #e0eafa;
+}
+.crew-health-guidance summary svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+.crew-support-details {
+  margin-top: 10px;
+  border-top: 1px solid #405674;
+}
+.crew-guidance-actions,
+.crew-source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin-top: 12px;
+}
+.crew-health-guidance a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #a5e8e6;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.crew-health-guidance :is(a, summary):focus-visible {
+  outline: 3px solid #ffd19e;
+  outline-offset: 4px;
+}
+.crew-prevention {
+  margin-top: 14px;
+  border-left: 3px solid #c3a6ff;
+}
+.crew-prevention > summary {
+  font-size: 18px;
+  font-weight: 600;
+}
+.crew-considerations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.crew-consideration {
+  padding: 4px 16px 12px;
+  background: #15273f;
+  border: 1px solid #4a6382;
+  border-radius: 10px;
+  min-width: 0;
+}
+.crew-consideration dt {
+  font-size: 13px;
+  font-weight: 650;
+  color: #c4b5ff;
+  margin-top: 14px;
+}
+.crew-consideration dd {
+  margin-top: 4px;
+}
+#crew-medical-guidance,
+#crew-prevention,
+#measurement-topics {
+  scroll-margin-top: 24px;
+}
+@media (max-width: 760px) {
+  .crew-considerations {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 @media (max-width: 900px) {
   .personal-monitoring[data-section="overview"] > .personal-next {
     grid-template-columns: 1fr;

@@ -334,6 +334,12 @@ test("personal cloud mock: owned baselines, missing oxygen, research links and u
     page.getByRole("heading", { name: "Welcome, Fixture B" }),
   ).toBeVisible();
   await page.goto("/astronaut/health-insights");
+  await expect(page.locator(".crew-medical-guidance")).toContainText(
+    "does not provide emergency assessment",
+  );
+  await expect(page.locator(".crew-medical-guidance")).toContainText(
+    "Communicate self-reported urgent concerns promptly",
+  );
   const trend = page.getByRole("img", {
     name: /30-day Resting heart rate trend/,
   });
@@ -382,4 +388,8 @@ test("personal cloud mock: owned baselines, missing oxygen, research links and u
   await expect(page.locator(".urgent-insight")).toContainText(
     "No approved medical escalation protocol",
   );
+  await expect(page.locator(".crew-medical-guidance")).toContainText(
+    "does not provide emergency assessment",
+  );
+  await expect(page.locator(".crew-consideration")).toHaveCount(5);
 });
